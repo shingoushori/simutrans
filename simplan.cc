@@ -613,7 +613,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 		for(  uint8 i = 1;  i < ground_size;  i++  ) {
 			grund_t* gr = data.some[i];
 			const sint8 h = gr->get_disp_height();
-			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			// const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 2;
+			// [mod : shingoushori] Modify the gap between the elevated structures and their markers.
+			const sint16 yypos = ypos - (h - h0 ) * get_tile_raster_width() / 4;
 			gr->display_overlay( xpos, yypos );
 		}
 	}
