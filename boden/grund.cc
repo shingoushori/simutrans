@@ -1658,18 +1658,18 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 1/3
 			// fprintf(stderr, "%d/t",welt->get_active_player_nr()); // number of active player
 			
-				switch( env_t::show_names >> 2 ) {
-				  case 0:
+			switch( env_t::show_names >> 2 ) {
+				case 0:
 					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					break;
-				  case 1:
+				case 1:
 					// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 2/3
 					// display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
 					if(pc == (PLAYER_FLAG|color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4))){
 						display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					}
 					break;
-				  case 2:
+				case 2:
 					// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 3/3
 					// display_outline_proportional_rgb( 16+new_xpos, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
 					// display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
@@ -1678,7 +1678,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 					   || pc == SYSCOL_TEXT_HIGHLIGHT){
 						display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					}
-					break;
+				break;
 			}
 		}
 
