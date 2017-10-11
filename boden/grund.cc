@@ -1655,9 +1655,9 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			int new_xpos = xpos - (width-raster_tile_width)/2;
 			FLAGGED_PIXVAL pc = text_farbe();
 
-				// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 1/3
-				// fprintf(stderr, "%d/t",welt->get_active_player_nr()); // number of active player
-				
+			// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 1/3
+			// fprintf(stderr, "%d/t",welt->get_active_player_nr()); // number of active player
+			
 				switch( env_t::show_names >> 2 ) {
 				  case 0:
 					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
@@ -1679,6 +1679,8 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 						display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					}
 					break;
+			}
+		}
 
 		// display station waiting information/status
 		if(env_t::show_names & 2) {
