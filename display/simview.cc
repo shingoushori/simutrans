@@ -291,10 +291,17 @@ void main_view_t::display(bool force_dirty)
 
 	if(welt) {
 		// show players income/cost messages
+		// [mod : shingoushori] Modify to control the display of the players income/cost message according to the active player.
+		/*
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
 			if(  welt->get_player(x)  ) {
 				welt->get_player(x)->display_messages();
 			}
+		}
+		*/
+		int x = welt->get_active_player_nr();
+		if(  welt->get_player(x)  ) {
+				welt->get_player(x)->display_messages();
 		}
 	}
 
