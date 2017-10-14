@@ -1889,6 +1889,74 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 }
 
 
+// [mod : shingoushori] Modify to split the deletion method in order to make a connectionless weg 1/3
+sint32 grund_t::weg_entfernen_arbeitsbereich(waytype_t wegtyp, bool ribi_rem)
+{
+	weg_t *weg = get_weg(wegtyp);
+	if(weg!=NULL) {
+		
+		weg->mark_image_dirty(get_image(), 0);
+
+		if(ribi_rem) {
+			ribi_t::ribi ribi = weg->get_ribi();
+			
+			if (ribi > 0) {
+				grund_t *to;
+	
+				for(int r = 0; r < 4; r++) {
+					if((ribi & ribi_t::nsew[r]) && get_neighbour(to, wegtyp, ribi_t::nsew[r])) {
+						weg_t *weg2 = to->get_weg(wegtyp);
+						if(weg2) {
+							weg2->ribi_rem(ribi_t::backward(ribi_t::nsew[r]));
+							to->calc_image();
+						}
+					}
+				}
+				weg->set_ribi(0);
+				calc_image();
+				return 0;
+			}
+			else {
+				// Doubtful idea : for quick display update ...
+				weg->set_ribi(15);
+				calc_image();
+				weg->set_ribi(0);
+			}
+		}
+		
+		sint32 costs=weg->get_desc()->get_price();	// costs for removal are construction costs
+		weg->cleanup( NULL );
+		delete weg;
+
+		// delete the second way ...
+		if(flags&has_way2) {
+			flags &= ~has_way2;
+
+			// reset speed limit/crossing info (maybe altered by crossing)
+			// Not all ways (i.e. with styp==7) will imply crossings, so we have to check
+			crossing_t* cr = find<crossing_t>(1);
+			if(cr) {
+				cr->cleanup(0);
+				delete cr;
+				// restore speed limit
+				weg_t* w = (weg_t*)obj_bei(0);
+				w->set_desc(w->get_desc());
+				w->count_sign();
+			}
+		}
+		else {
+			flags &= ~has_way1;
+		}
+
+		calc_image();
+		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+
+		return costs;
+	}
+	return 0;
+}
+
+
 // this function is called many many times => make it as fast as possible
 // i.e. no reverse lookup of ribis from koord
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const

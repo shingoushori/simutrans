@@ -745,7 +745,9 @@ DBG_MESSAGE("tool_remover()", "removing way");
 			}
 		}
 		wt = w->get_desc()->get_finance_waytype();
-		sint32 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		// [mod : shingoushori] Modify to split the deletion method in order to make a connectionless weg 3/3
+		//sint32 cost_sum = gr->weg_entfernen(w->get_waytype(), true);
+		sint32 cost_sum = gr->weg_entfernen_arbeitsbereich(w->get_waytype(), true);
 		player_t::book_construction_costs(player, -cost_sum, k, wt);
 	}
 	else {

@@ -96,7 +96,7 @@ class grund_t
 {
 public:
 	/**
-	 * Flag-Werte für das neuzeichnen geänderter Untergründe
+	 * Flag-Werte fï¿½ das neuzeichnen geèˆ…derter Untergrï¿½de
 	 * @author Hj. Malthaner
 	 */
 	enum flag_values {
@@ -392,13 +392,13 @@ public:
 	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
-	 * Manche Böden können zu Haltestellen gehören.
+	 * Manche Bî’Œen kî’–nen zu Haltestellen gehî’šen.
 	 * @author Hj. Malthaner
 	 */
 	void set_halt(halthandle_t halt);
 
 	/**
-	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
+	 * Ermittelt, ob dieser Boden zu einer Haltestelle gehî’št.
 	 * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	 * @author Hj. Malthaner
 	 */
@@ -673,7 +673,7 @@ public:
 
 	/**
 	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
-	* Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
+	* Dies wird beim Bauen benî•˜igt. Furr die Routenfindung werden die
 	* maskierten ribis benutzt.
 	* @author Hj. Malthaner/V. Meyer
 	*
@@ -694,7 +694,7 @@ public:
 	virtual sint8 get_weg_yoff() const { return 0; }
 
 	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false fï¿½ Water!
 	* @author V. Meyer
 	*/
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
@@ -761,6 +761,8 @@ public:
 	 * @author V. Meyer
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
+	// [mod : shingoushori] Modify to split the deletion method in order to make a connectionless weg 2/3
+	sint32 weg_entfernen_arbeitsbereich(waytype_t wegtyp, bool ribi_rem);
 
 	/**
 	 * Description;
