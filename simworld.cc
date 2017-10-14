@@ -6208,6 +6208,12 @@ void karte_t::switch_active_player(uint8 new_player, bool silent)
 			cbuffer_t buf;
 			buf.printf( translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
+			
+			// [mod : shingoushori] Modify to synchronize MIDI No with active player No.
+			if (get_current_midi() != new_player) {
+				midi_stop();
+				midi_play(new_player);
+			}
 		}
 
 		// update menu entries
