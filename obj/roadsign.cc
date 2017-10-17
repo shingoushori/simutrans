@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjî’šg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -179,7 +179,7 @@ void roadsign_t::show_info()
 
 
 /**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+ * @return Einen Beschreibungsstring fï¿½ das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
@@ -474,6 +474,39 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		if(state!=new_state) {
 			state = new_state;
 			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
+			// [mod : shingoushori] Modify to be able to adjust states of the traffic light with marker.
+			// vertical offset of the signal positions
+			const grund_t *gr=welt->lookup(get_pos());
+			if(gr!=NULL) {
+				const char* ch_text = gr->get_text();
+				if (ch_text != 0) {
+					if (strlen(ch_text) >= 2) {
+						char ch_new_state = (new_state==0) ? ch_text[0] : ch_text[1];
+						uint8 new_ribi = 255;
+						switch (ch_new_state) {
+							case '0' : new_ribi = ribi_t::none; break;
+							case '1' : new_ribi = ribi_t::north; break;
+							case '2' : new_ribi = ribi_t::east; break;
+							case '3' : new_ribi = ribi_t::northeast; break;
+							case '4' : new_ribi = ribi_t::south; break;
+							case '5' : new_ribi = ribi_t::northsouth; break;
+							case '6' : new_ribi = ribi_t::southeast; break;
+							case '7' : new_ribi = ribi_t::northsoutheast; break;
+							case '8' : new_ribi = ribi_t::west; break;
+							case '9' : new_ribi = ribi_t::northwest; break;
+							case 'A' : new_ribi = ribi_t::eastwest; break;
+							case 'B' : new_ribi = ribi_t::northeastwest; break;
+							case 'C' : new_ribi = ribi_t::southwest; break;
+							case 'D' : new_ribi = ribi_t::northsouthwest; break;
+							case 'E' : new_ribi = ribi_t::southeastwest; break;
+							case 'F' : new_ribi = ribi_t::all; break;
+						}
+						if (new_ribi != 255) {
+							dir = new_ribi;
+						}
+					}
+				}
+			}
 			calc_image();
 		}
 	}
@@ -598,7 +631,7 @@ void roadsign_t::cleanup(player_t *player)
 
 
 /**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
+ * Wird nach dem Laden der Welt aufgerufen - ï¿½licherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
  *
  * @author Hj. Malthaner
