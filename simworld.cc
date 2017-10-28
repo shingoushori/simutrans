@@ -6094,7 +6094,7 @@ void karte_t::change_time_multiplier(sint32 delta)
 // [mod : shingoushori] change_time_multiplier_xt 3/6
 void karte_t::change_time_multiplier_xt(sint32 delta)
 {
-	fprintf(stderr,"%d %d %d\t",step_mode, step_fast_forward, time_multiplier);
+	// fprintf(stderr,"%d %d %d\t",step_mode, step_fast_forward, time_multiplier);
 	if (step_mode==FAST_FORWARD) {
 		uint32 step_fast_forward_plan = step_fast_forward;
 		if (delta < 0) {
@@ -6112,10 +6112,11 @@ void karte_t::change_time_multiplier_xt(sint32 delta)
 		if(step_fast_forward<100) {
 			step_fast_forward = 100;
 		}
-		// tell the player
-		cbuffer_t buf;
-		buf.printf( translator::translate(">> %d\n"), step_fast_forward );
-		msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, SYSCOL_TEXT, IMG_EMPTY);
+		// // tell the player
+		// cbuffer_t buf;
+		// buf.printf( translator::translate(">> %d\n"), step_fast_forward );
+		// msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, SYSCOL_TEXT, IMG_EMPTY);
+		fprintf(stderr,"change_time_multiplier_xt step_fast_forward %d\n", step_fast_forward);
 		return;
 	}
 	uint32 time_multiplier_plan = time_multiplier;
@@ -6136,6 +6137,7 @@ void karte_t::change_time_multiplier_xt(sint32 delta)
 	// cbuffer_t buf;
 	// buf.printf( translator::translate("> %d\n"), time_multiplier );
 	// msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, SYSCOL_TEXT, IMG_EMPTY);
+	fprintf(stderr,"change_time_multiplier_xt time_multiplier %d\n", time_multiplier);
 	if(step_mode!=NORMAL) {
 		step_mode = NORMAL;
 		reset_timer();
