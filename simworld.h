@@ -499,6 +499,9 @@ private:
 	 * @note Set in reset_timer().
 	 */
 	sint32 fix_ratio_frame_time;
+	
+	// [mod : shingoushori] change_time_multiplier_xt 4/6
+	uint32 step_fast_forward;
 
 	/**
 	 * For performance comparison.
@@ -1010,6 +1013,8 @@ public:
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
+	// [mod : shingoushori] change_time_multiplier_xt 2/6
+	void change_time_multiplier_xt( sint32 delta );
 
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
