@@ -1223,8 +1223,15 @@ void reliefkarte_t::draw(scr_coord pos)
 			colore_idx = 0;
 
 			for(  int np = 0;  np < MAX_PLAYER_COUNT;  np++  ) {
-				if(  player_showed_on_map != -1  &&  player_showed_on_map != np  ) {
-					continue;
+				// [mod : shingoushori] Add MAP_LINES mode to show all players except one player. 3/4
+				if ( player_showed_on_map != -1  && (player_showed_on_map & 16) == 16) {
+					if( (player_showed_on_map & 15) == np  ) {
+						continue;
+					}
+				} else {
+					if(  player_showed_on_map != -1  &&  player_showed_on_map != np  ) {
+						continue;
+					}
 				}
 				//cycle on players
 				if(  welt->get_player( np )  &&  welt->get_player( np )->simlinemgmt.get_line_count() > 0   ) {
@@ -1274,8 +1281,15 @@ void reliefkarte_t::draw(scr_coord pos)
 					// not there or already part of a line
 					continue;
 				}
-				if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_owner()  ) {
-					continue;
+				// [mod : shingoushori] Add MAP_LINES mode to show all players except one player. 4/4
+				if( player_showed_on_map != -1  && (player_showed_on_map & 16) == 16) {
+					if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner == cnv->get_owner()  ) {
+						continue;
+					}
+				} else {
+					if(  required_vehicle_owner!= NULL  &&  required_vehicle_owner != cnv->get_owner()  ) {
+						continue;
+					}
 				}
 				if(  transport_type_showed_on_map != simline_t::line  ) {
 					if(  transport_type_showed_on_map != simline_t::get_linetype(cnv->front()->get_waytype())  ) {

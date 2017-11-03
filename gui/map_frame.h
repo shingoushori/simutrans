@@ -71,8 +71,10 @@ private:
 	 * to center map
 	 */
 	bool zoomed;
-
-	int viewable_players[MAX_PLAYER_COUNT+1];
+	
+	// [mod : shingoushori] Add MAP_LINES mode to show all players except one player. 2/4
+	//int viewable_players[MAX_PLAYER_COUNT+1];
+	int viewable_players[MAX_PLAYER_COUNT*2+1];
 	simline_t::linetype viewable_transport_types[simline_t::MAX_LINE_TYPE];
 
 	/**
