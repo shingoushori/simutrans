@@ -6363,6 +6363,24 @@ bool tool_show_underground_t::init( player_t * )
 			}
 			break;
 
+		// [mod : shingoushori] set underground view level - height taken from menuconf.tab 1/2
+		case 'L':
+			{
+				sint8 target_level = save_underground_level;
+				if (strlen(default_param) != 1) { target_level = atoi(&default_param[1]); }
+				if (target_level<=-128 || 127 <=target_level) {
+					grund_t::set_underground_mode(grund_t::ugm_none, 0);
+					break;
+				}
+				if(grund_t::underground_mode==grund_t::ugm_level && grund_t::underground_level==target_level) {
+					grund_t::set_underground_mode( grund_t::ugm_none, 0);
+				}
+				else {
+					grund_t::set_underground_mode( grund_t::ugm_level, target_level);
+				}
+			}
+			break;
+
 		//  switch between full underground or normal/sliced view
 		case 'U':
 			if (grund_t::underground_mode==grund_t::ugm_all) {
@@ -6446,6 +6464,14 @@ char const* tool_show_underground_t::get_tooltip(player_t const*) const
 		// toggle sliced view by keyboard - height taken from cursor
 		case 'K':
 			return translator::translate("sliced underground mode");
+		// [mod : shingoushori] set underground view level - height taken from menuconf.tab 2/2
+		case 'L':
+			//return translator::translate("set underground view level");
+			if (default_param[1] != '\0') {
+				return &default_param[1];
+			} else {
+				return translator::translate("sliced underground mode");
+			}
 		//  switch between full underground or normal/sliced view
 		case 'U':
 		default:
