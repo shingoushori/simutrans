@@ -501,6 +501,8 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 							case 'E' : new_ribi = ribi_t::southeastwest; break;
 							case 'F' : new_ribi = ribi_t::all; break;
 						}
+						// [mod : shingoushori] Corresponds to map rotation
+						new_ribi = ((((new_ribi << 4) + new_ribi) << welt->get_settings().get_rotation()) >> 4) & 15;
 						if (new_ribi != 255) {
 							dir = new_ribi;
 						}
