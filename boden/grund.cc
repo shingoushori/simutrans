@@ -1665,7 +1665,8 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 				case 1:
 					// [mod : shingoushori] Modify concerning the control of visibility of markers by the relationship between those owners and the active player. 2/3
 					// display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
-					if(pc == (PLAYER_FLAG|color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4))){
+					if(pc == (PLAYER_FLAG|color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4))
+					   || pc == SYSCOL_TEXT_HIGHLIGHT){
 						display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					}
 					break;
@@ -1674,11 +1675,15 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 					// display_outline_proportional_rgb( 16+new_xpos, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
 					// display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
 					// display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
-					if(pc == (PLAYER_FLAG|color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4)) 
-					   || pc == SYSCOL_TEXT_HIGHLIGHT){
+					if(is_halt()) {
+						if(get_halt()->get_owner() == welt->get_active_player()){
+							display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
+						}
+					}
+					else {
 						display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, color_idx_to_rgb(COL_BLACK), text, dirty );
 					}
-				break;
+					break;
 			}
 		}
 
