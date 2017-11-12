@@ -1691,7 +1691,17 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 		if(env_t::show_names & 2) {
 			const halthandle_t halt = get_halt();
 			if(halt.is_bound()  &&  halt->get_basis_pos3d()==pos) {
-				halt->display_status(xpos, ypos);
+				// [mod : shingoushori] : Modify concerning the control of visibility of display station waiting information/status by the relationship between those owners and the active player.
+				switch( env_t::show_names >> 2 ) {
+					case 2:
+						if (halt->get_owner() == welt->get_active_player()) {
+							halt->display_status(xpos, ypos);
+						}
+						break;
+					default:
+						halt->display_status(xpos, ypos);
+					break;
+				}
 			}
 		}
 	}
