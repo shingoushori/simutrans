@@ -229,7 +229,7 @@ void open_error_msg_win(const char* error)
  * extended to search first in our direction
  * @author Hj. Malthaner, V.Meyer, prissi
  */
-static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
+static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1, bool bBereich=false)
 {
 	koord k(pos.get_2d());
 
@@ -263,12 +263,31 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 	}
 
 	// now just search all neighbours
-	for(  sint16 y=-1;  y<=h;  y++  ) {
-		for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
-			if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) {
-				my_halt = plan->get_halt( player );
-				if(  my_halt.is_bound()  ) {
-					return my_halt;
+	// [mod : shingoushori] Create a station and connect it to another station at a distance. 1/2
+	if (bBereich) {
+		fprintf(stderr,"\n");
+		fprintf(stderr,"%d %d\n", b, h);
+		fprintf(stderr,"%d %d\n", k.x, k.y);
+		for(  sint16 y=-h;  y<=h;  y++  ) {
+			for(  sint16 x=-b;  x<=b; x++  ) {
+				if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) { fprintf(stderr,"%d %d ", plan->get_kartenboden()->get_pos().x, plan->get_kartenboden()->get_pos().y);
+					my_halt = plan->get_halt( player );
+					if(  my_halt.is_bound()  ) {
+						return my_halt;
+					}
+				}
+			}
+			fprintf(stderr,"\n");
+		}
+			fprintf(stderr,"\n");
+	} else {
+		for(  sint16 y=-1;  y<=h;  y++  ) {
+			for(  sint16 x=-1;  x<=b;  (x==-1 && y>-1 && y<h) ? x=b:x++  ) {
+				if(  planquadrat_t* plan=welt->access(k+koord(x,y))  ) {
+					my_halt = plan->get_halt( player );
+					if(  my_halt.is_bound()  ) {
+						return my_halt;
+					}
 				}
 			}
 		}
@@ -4303,7 +4322,14 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		}
 	}
 	else {
-		halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+		// [mod : shingoushori] Create a station and connect it to another station at a distance. 2/2
+		if (is_shift_pressed()) {
+			halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), welt->get_settings().get_station_coverage(), welt->get_settings().get_station_coverage(), true);
+		} else if (is_ctrl_pressed()) {
+			halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), welt->get_settings().get_station_coverage()*2, welt->get_settings().get_station_coverage()*2-1, true);
+		} else {
+			halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+		}
 	}
 
 	// seems everything ok, lets build
