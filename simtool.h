@@ -385,6 +385,20 @@ private:
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
 	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
 	const building_desc_t *get_desc( sint8 &rotation ) const;
+	
+	// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 1/3
+	struct build_info {
+			build_info() : bBereich(false), b(1), h(1) {}
+			
+			bool  bBereich;
+			sint16 b;
+			sint16 h;
+		};
+		// default values for this tool per player
+		build_info build[MAX_PLAYER_COUNT];
+		// values that will be used to build
+		//build_info current;
+
 
 public:
 	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}

@@ -263,6 +263,7 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 	}
 
 	// now just search all neighbours
+	fprintf(stderr,"suche_nahe_haltestelle\n");
 	// [mod : shingoushori] Create a station and connect it to another station at a distance. 1/2
 	if (bBereich) {
 		fprintf(stderr,"\n");
@@ -4328,7 +4329,13 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		} else if (is_ctrl_pressed()) {
 			halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), welt->get_settings().get_station_coverage()*2, welt->get_settings().get_station_coverage()*2-1, true);
 		} else {
-			halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+			// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 3/3
+			if (build[welt->get_active_player_nr()].bBereich) {
+				fprintf(stderr,"build[welt->get_active_player_nr()].bBereich\n");
+				halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), build[welt->get_active_player_nr()].b, build[welt->get_active_player_nr()].h, true);
+			} else {
+				halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
+			}
 		}
 	}
 
@@ -4436,6 +4443,25 @@ set_area_cov:
 		cursor_area = koord(cov, cov);
 		cursor_centered = true;
 		cursor_offset = koord(0,0);
+	}
+	// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 2/3
+	// take default values from players settings
+	//current = build[welt->get_active_player_nr()];
+	if (is_ctrl_pressed()) {
+		fprintf(stderr,"is_ctrl_pressed\n");
+		build[welt->get_active_player_nr()].bBereich = true;
+		build[welt->get_active_player_nr()].b = welt->get_settings().get_station_coverage() * 2;
+		build[welt->get_active_player_nr()].h = welt->get_settings().get_station_coverage() * 2;
+	} else if (is_shift_pressed()) {
+		fprintf(stderr,"is_shiftpressed\n");
+		build[welt->get_active_player_nr()].bBereich = true;
+		build[welt->get_active_player_nr()].b = welt->get_settings().get_station_coverage();
+		build[welt->get_active_player_nr()].h = welt->get_settings().get_station_coverage();
+	} else {
+		fprintf(stderr,"else\n");
+		build[welt->get_active_player_nr()].bBereich = false;
+		build[welt->get_active_player_nr()].b = 1;
+		build[welt->get_active_player_nr()].h = 1;
 	}
 	return true;
 }
