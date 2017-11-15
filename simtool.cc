@@ -4303,7 +4303,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 	bool recalc_schedule = false;
 
 	halthandle_t halt;
-
+	
 	if(  old_halt.is_bound()  ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const building_desc_t *old_desc = gb->get_tile()->get_desc();
@@ -4329,10 +4329,13 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		} else if (is_ctrl_pressed()) {
 			halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), welt->get_settings().get_station_coverage()*2, welt->get_settings().get_station_coverage()*2-1, true);
 		} else {
+			// [mod : shingoushori] To make it available for AI Player ... Create a station and connect it to another station at a distance. 2/3
+			if (build == nullptr) {
+				build = new build_info[MAX_PLAYER_COUNT];
+			}
 			// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 3/3
-			if (build[welt->get_active_player_nr()].bBereich) {
-				fprintf(stderr,"build[welt->get_active_player_nr()].bBereich\n");
-				halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), build[welt->get_active_player_nr()].b, build[welt->get_active_player_nr()].h, true);
+			if (build[player->get_player_nr()].bBereich) {
+				halt = suche_nahe_haltestelle(player,welt,bd->get_pos(), build[player->get_player_nr()].b, build[player->get_player_nr()].h, true);
 			} else {
 				halt = suche_nahe_haltestelle(player,welt,bd->get_pos());
 			}
@@ -4404,7 +4407,8 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 	return tdsc->get_desc();
 }
 
-bool tool_build_station_t::init( player_t * )
+// [mod : shingoushori] To make it available for AI Player ... Create a station and connect it to another station at a distance. 3/3
+bool tool_build_station_t::init( player_t *player )
 {
 	sint8 rotation = -1;
 	const building_desc_t *bdsc = get_desc( rotation );
@@ -4444,28 +4448,37 @@ set_area_cov:
 		cursor_centered = true;
 		cursor_offset = koord(0,0);
 	}
+	if (build == nullptr) {
+		build = new build_info[MAX_PLAYER_COUNT];
+	}
 	// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 2/3
 	// take default values from players settings
 	//current = build[welt->get_active_player_nr()];
 	if (is_ctrl_pressed()) {
-		fprintf(stderr,"is_ctrl_pressed\n");
-		build[welt->get_active_player_nr()].bBereich = true;
-		build[welt->get_active_player_nr()].b = welt->get_settings().get_station_coverage() * 2;
-		build[welt->get_active_player_nr()].h = welt->get_settings().get_station_coverage() * 2;
+		fprintf(stderr,"init %d is_ctrl_pressed\n",player->get_player_nr());
+		build[player->get_player_nr()].bBereich = true;
+		build[player->get_player_nr()].b = welt->get_settings().get_station_coverage() * 2;
+		build[player->get_player_nr()].h = welt->get_settings().get_station_coverage() * 2;
 	} else if (is_shift_pressed()) {
-		fprintf(stderr,"is_shiftpressed\n");
-		build[welt->get_active_player_nr()].bBereich = true;
-		build[welt->get_active_player_nr()].b = welt->get_settings().get_station_coverage();
-		build[welt->get_active_player_nr()].h = welt->get_settings().get_station_coverage();
+		fprintf(stderr,"init %d is_shift_pressed\n",player->get_player_nr());
+		build[player->get_player_nr()].bBereich = true;
+		build[player->get_player_nr()].b = welt->get_settings().get_station_coverage();
+		build[player->get_player_nr()].h = welt->get_settings().get_station_coverage();
 	} else {
-		fprintf(stderr,"else\n");
-		build[welt->get_active_player_nr()].bBereich = false;
-		build[welt->get_active_player_nr()].b = 1;
-		build[welt->get_active_player_nr()].h = 1;
+		fprintf(stderr,"init %d default\n",player->get_player_nr());
+		build[player->get_player_nr()].bBereich = false;
+		build[player->get_player_nr()].b = 1;
+		build[player->get_player_nr()].h = 1;
 	}
 	return true;
 }
-
+tool_build_station_t::build_info* tool_build_station_t::build = nullptr;
+tool_build_station_t::~tool_build_station_t() {
+	if (build != nullptr) {
+		delete[] build;
+		build = nullptr;
+	}
+}
 
 image_id tool_build_station_t::get_icon( player_t * ) const
 {

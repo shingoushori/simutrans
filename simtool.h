@@ -387,6 +387,7 @@ private:
 	const building_desc_t *get_desc( sint8 &rotation ) const;
 	
 	// [mod : shingoushori] preset ... Create a station and connect it to another station at a distance. 1/3
+	// [mod : shingoushori] To make it available for AI Player ... Create a station and connect it to another station at a distance. 1/3
 	struct build_info {
 			build_info() : bBereich(false), b(1), h(1) {}
 			
@@ -395,13 +396,14 @@ private:
 			sint16 h;
 		};
 		// default values for this tool per player
-		build_info build[MAX_PLAYER_COUNT];
+		static build_info* build;
 		// values that will be used to build
 		//build_info current;
 
 
 public:
 	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
+	virtual ~tool_build_station_t();
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
