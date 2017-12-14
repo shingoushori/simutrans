@@ -1179,8 +1179,15 @@ void loadsave_t::rdwr_str( char* result_buffer, size_t const size)
 						return;
 					}
 				}
-				*s = 0;
-				dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
+				// [mod : singoushori] skip "loadsave_t::rdwr_str() string too long"
+				fprintf(stderr, "\n===============================================================");
+				fprintf(stderr, "\nloadsave_t::rdwr_str() string too long (exceeded %i characters)", size);
+				s[-3] = 0;
+				fprintf(stderr,"\n%s", temp);
+				fprintf(stderr, "\n===============================================================\n");
+				strcpy( result_buffer, "\0" );
+				//*s = 0;
+				//dbg->fatal( "loadsave_t::rdwr_str()","string too long (exceeded %i characters)", size );
 			}
 		}
 	}
