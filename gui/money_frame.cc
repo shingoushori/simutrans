@@ -226,7 +226,19 @@ money_frame_t::money_frame_t(player_t *player)
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
 {
 	if(welt->get_player(0)!=player) {
-		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
+		// [mod : singoushori] Simple fix for a long name player
+		//sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
+		size_t i_head = strlen(translator::translate("Finances of %s"));
+		size_t i_name = strlen(translator::translate(player->get_name()));
+		char* c_temp = (char*)malloc(sizeof(char)*(i_head + i_name));
+		sprintf(c_temp,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
+		if (strlen(c_temp) >= sizeof(money_frame_title)-2) {
+			fprintf(stderr, "i_head : %d i_name : %d\n %s\n",i_head, i_name, c_temp);
+			temp[sizeof(money_frame_title)-2] = '\0';
+			fprintf(stderr, "%s\n", c_temp);
+		}
+		sprintf(money_frame_title,"%s", c_temp);
+		free(c_temp);
 		set_name(money_frame_title);
 	}
 
