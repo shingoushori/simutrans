@@ -234,7 +234,7 @@ money_frame_t::money_frame_t(player_t *player)
 		sprintf(c_temp,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
 		if (strlen(c_temp) >= sizeof(money_frame_title)-2) {
 			fprintf(stderr, "i_head : %d i_name : %d\n %s\n",i_head, i_name, c_temp);
-			temp[sizeof(money_frame_title)-2] = '\0';
+			c_temp[sizeof(money_frame_title)-2] = '\0';
 			fprintf(stderr, "%s\n", c_temp);
 		}
 		sprintf(money_frame_title,"%s", c_temp);
