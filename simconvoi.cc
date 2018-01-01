@@ -3582,6 +3582,9 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * The city car is not overtaking/being overtaken.
  * @author isidoro
  */
+// [mod : shingoushori] experimentation for extending overtaking method of convoi ...
+// [mod : shingoushori] ... For ease of revert, remain whole
+/*
 bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
 {
 	if(fahr[0]->get_waytype()!=road_wt) {
@@ -3593,9 +3596,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	}
 
 	if(  other_speed == 0  ) {
-		/* overtaking a loading convoi
-		 * => we can do a lazy check, since halts are always straight
-		 */
+		// overtaking a loading convoi
+		// => we can do a lazy check, since halts are always straight
+		// 
 		grund_t *gr = welt->lookup(get_pos());
 		if(  gr==NULL  ) {
 			// should never happen, since there is a vehicle in front of us ...
@@ -3787,6 +3790,296 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	set_tiles_overtaking( 1+n_tiles );
 	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
+	return true;
+}
+*/
+bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
+{
+	if(fahr[0]->get_waytype()!=road_wt) {
+		return false;
+	}
+	
+	if (!other_overtaker->can_be_overtaken()) {
+		return false;
+	}
+	
+	// [mod : shingoushori] Change the branch position For use in another process
+	//if(  other_speed == 0  ) {
+		// overtaking a loading convoi
+		// => we can do a lazy check, since halts are always straight
+		// 
+		grund_t *gr = welt->lookup(get_pos());
+		if(  gr==NULL  ) {
+			// should never happen, since there is a vehicle in front of us ...
+			return false;
+		}
+		weg_t *str = gr->get_weg(road_wt);
+		if(  str==0  ) {
+			// also this is not possible, since a car loads in front of is!?!
+			return false;
+		}
+	
+	grund_t *gr_now = gr; // [mod : shingoushori]
+	//weg_t *str_now = str; // [mod : shingoushori]
+	// [mod : shingoushori] Change the branch position For use in another process
+	if(  other_speed == 0  ) {
+		// overtaking a loading convoi
+		// => we can do a lazy check, since halts are always straight
+		// 
+		uint16 idx = fahr[0]->get_route_index();
+		const sint32 tiles = other_speed == 0 ? 2 : (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
+		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
+			// needs more space than there
+			return false;
+		}
+		
+		bool is_single_prev = true; // [mod : shingoushori]
+		for(  sint32 i=0;  i<tiles;  i++  ) {
+			grund_t *gr = welt->lookup( route.at( idx+i ) );
+			if(  gr==NULL  ) {
+				return false;
+			}
+			weg_t *str = gr->get_weg(road_wt);
+			if(  str==0  ) {
+				return false;
+			}
+			// not overtaking on railroad crossings or normal crossings ...
+			if(  str->is_crossing() ) {
+				return false;
+			}
+			if(  ribi_t::is_threeway(str->get_ribi())  ) {
+				if(is_single_prev){ // [mod : shingoushori]
+					break;
+				}
+				return false;
+			}
+			// Check for other vehicles on the next tile
+			const uint8 top = gr->get_top();
+			for(  uint8 j=1;  j<top;  j++  ) {
+				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
+					// check for other traffic on the road
+					overtaker_t *ov = v->get_overtaker();
+					if(ov) {
+						if(this!=ov  &&  other_overtaker!=ov) {
+							return false;
+						}
+					}
+					else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
+						return false;
+					}
+				}
+			}
+			is_single_prev = ribi_t::is_single(str->get_ribi());
+		}
+		set_tiles_overtaking( tiles );
+		return true;
+	}
+	
+	int diff_speed = akt_speed - other_speed;
+	if(  diff_speed < kmh_to_speed(5)  ) {
+		if ((diff_speed >= 0) && (akt_speed < akt_speed_soll)) { // [mod : shingoushori]
+			diff_speed = min(kmh_to_speed(str->get_max_speed()), akt_speed_soll);
+			akt_speed = diff_speed;
+		} else if ((akt_speed <= kmh_to_speed(5)) || (fahr[0]->is_stuck())) { // [mod : shingoushori]
+			akt_speed = min(kmh_to_speed(str->get_max_speed()), akt_speed_soll);
+			diff_speed = akt_speed - other_speed;
+			if(diff_speed <= kmh_to_speed(5)) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	
+	// Number of tiles overtaking will take
+	int n_tiles = 0;
+	
+	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
+	// time_overtaking = tiles_to_overtake/diff_speed
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
+	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+	int time_overtaking = 0;
+	
+	// Conditions for overtaking:
+	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
+	// First phase: no traffic except me and my overtaken car in the dangerous zone
+	unsigned int route_index = fahr[0]->get_route_index()+1;
+	koord3d pos = fahr[0]->get_pos();
+	koord3d pos_prev = route_index > 2 ? route.at(route_index-2) : pos;
+	koord3d pos_next;
+	
+	bool b_overtake =false; // [mod : shingoushori]
+	bool is_single_prev = true; // [mod : shingoushori]
+	overtaker_t *other_overtaker_next = other_overtaker; // [mod : shingoushori]
+	int distance_init = distance; // [mod : shingoushori]
+	while( distance > 0 ) { // [mod : shingoushori]
+	while( distance > 0 ) {
+		
+		if(  route_index >= route.get_count()  ) {
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		
+		pos_next = route.at(route_index++);
+		grund_t *gr = welt->lookup(pos);
+		// no ground, or slope => about
+		if(  gr==NULL  ||  gr->get_weg_hang()!=slope_t::flat  ) {
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		
+		weg_t *str = gr->get_weg(road_wt);
+		if(  str==NULL  ) {
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		
+		if(gr->is_halt()){ // [mod : shingoushori]
+			break;
+		}
+		
+		// [mod : shingoushori] Changing the order of execution To use the result in additional processing
+		int d = ribi_t::is_straight(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
+		distance -= d;
+		time_overtaking += d;
+		
+		// the only roadsign we must account for are choose points and traffic lights
+		if(  str->has_sign()  ) {
+			const roadsign_t *rs = gr->find<roadsign_t>(1);
+			if(rs) {
+				const roadsign_desc_t *rb = rs->get_desc();
+				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
+					// because we need to stop here ...
+					if(is_single_prev){ // [mod : shingoushori] 
+						if (n_tiles == 0) {
+							n_tiles++;
+						}
+						break;
+					}
+					return b_overtake; // [mod : shingoushori] // false;
+				}
+			}
+		}
+		// not overtaking on railroad crossings or on normal crossings ...
+		if(  str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi())  ) {
+			if(is_single_prev){ // [mod : shingoushori] 
+				if (n_tiles == 0) {
+					n_tiles++;
+				}
+				time_overtaking += d;
+				break;
+			}
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		// street gets too slow (TODO: should be able to be correctly accounted for)
+		if(  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
+			if ( kmh_to_speed(str->get_max_speed()) > 50 ) { // [mod : shingoushori] 50 : speed of cityroad
+				akt_speed = min(kmh_to_speed(str->get_max_speed()), akt_speed_soll);
+			} else {
+				return b_overtake; // [mod : shingoushori] // false;
+			}
+		}
+		
+		// [mod : shingoushori] Changing the order of execution To use the result in additional processing
+		//int d = ribi_t::is_straight(str->get_ribi()) ? VEHICLE_STEPS_PER_TILE : vehicle_base_t::get_diagonal_vehicle_steps_per_tile();
+		//distance -= d;
+		//time_overtaking += d;
+		
+		// Check for other vehicles
+		const uint8 top = gr->get_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			if (vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))) {
+				// check for other traffic on the road
+				const overtaker_t *ov = v->get_overtaker();
+				if(ov) {
+					if(this!=ov  &&  other_overtaker!=ov) {
+						if (n_tiles >= 2) { // [mod : shingoushori]
+							if ( kmh_to_speed(str->get_max_speed()) > 50 ) { // [mod : shingoushori] 50 : speed of cityroad
+								distance = distance_init;
+								time_overtaking = d;
+								other_overtaker_next = v->get_overtaker();
+								break;
+							}
+						}
+						return b_overtake; // [mod : shingoushori] // false;
+					}
+				}
+				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
+					// sheeps etc.
+					return b_overtake; // [mod : shingoushori] // false;
+				}
+			}
+		}
+		n_tiles++;
+		pos_prev = pos;
+		pos = pos_next;
+		is_single_prev = ribi_t::is_single(str->get_ribi()); // [mod : shingoushori]
+	}
+	
+	// Second phase: only facing traffic is forbidden
+	//   Since street speed can change, we do the calculation with time.
+	//   Each empty tile will subtract tile_dimension/max_street_speed.
+	//   If time is exhausted, we are guaranteed that no facing traffic will
+	//   invade the dangerous zone.
+	// Conditions for the street are milder: e.g. if no street, no facing traffic
+	time_overtaking = (time_overtaking << 16)/akt_speed;
+	while(  time_overtaking > 0  ) {
+		
+		if(  route_index >= route.get_count()  ) {
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		
+		pos_next = route.at(route_index++);
+		grund_t *gr= welt->lookup(pos);
+		if(  gr==NULL  ) {
+			// will cause a route search, but is ok
+			break;
+		}
+		
+		weg_t *str = gr->get_weg(road_wt);
+		if(  str==NULL  ) {
+			break;
+		}
+		
+		// cannot check for oncoming traffic over crossings
+		if(  ribi_t::is_threeway(str->get_ribi()) ) {
+			if(is_single_prev){ // [mod : shingoushori] 
+				distance = 0;
+				break;
+			}
+			return b_overtake; // [mod : shingoushori] // false;
+		}
+		
+		if(  ribi_t::is_straight(str->get_ribi())  ) {
+			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+		}
+		else {
+			time_overtaking -= (vehicle_base_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
+		}
+		
+		// Check for other vehicles in facing direction
+		ribi_t::ribi their_direction = ribi_t::backward( fahr[0]->calc_direction(pos_prev, pos_next) );
+		const uint8 top = gr->get_top();
+		for(  uint8 j=1;  j<top;  j++ ) {
+			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
+			if (v && v->get_direction() == their_direction && v->get_overtaker()) {
+				if (n_tiles >= 2) { // [mod : shingoushori]
+					n_tiles--;
+					distance = 0;
+					break;
+				} else {
+					return b_overtake; // [mod : shingoushori] // false;
+				}
+			}
+		}
+		pos_prev = pos;
+		pos = pos_next;
+		is_single_prev = ribi_t::is_single(str->get_ribi()); // [mod : shingoushori]
+	}
+	set_tiles_overtaking( 1+n_tiles );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
+	b_overtake = true; // [mod : shingoushori]
+	other_overtaker = other_overtaker_next; // [mod : shingoushori]
+	gr_now->mark_image_dirty();
+	n_tiles = 1;
+	} // [mod : shingoushori]
 	return true;
 }
 
