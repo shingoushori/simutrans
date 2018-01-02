@@ -101,14 +101,22 @@ class dialog_lines_t : public tool_t {
 public:
 	dialog_lines_t() : tool_t(DIALOG_LINEOVERVIEW | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Line Management"); }
-	image_id get_icon(player_t* player_) const OVERRIDE{ return player_->get_player_nr() == 1 ? IMG_EMPTY : icon; }
+	// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players.  1/4 - 1
+	image_id get_icon(player_t* player_) const OVERRIDE{ return icon; }
+	// image_id get_icon(player_t* player_) const OVERRIDE{ return /*player_->get_player_nr() == 1 ? IMG_EMPTY : */icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_line_management_t + welt->get_active_player_nr()); }
-		bool init(player_t* player_) OVERRIDE{
+	bool init(player_t* player_) OVERRIDE{
+		create_win(new schedule_list_gui_t(player_), w_info, magic_line_management_t + player_->get_player_nr());
+		return false;
+	}
+	/*
+	bool init(player_t* player_) OVERRIDE{
 		if (player_->get_player_nr() != welt->get_public_player()->get_player_nr()) {
 			create_win(new schedule_list_gui_t(player_), w_info, magic_line_management_t + player_->get_player_nr());
 		}
 		return false;
 	}
+	*/
 	bool exit(player_t* const player) OVERRIDE{ destroy_win(win_get_magic(magic_line_management_t + player->get_player_nr())); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 	bool is_work_network_save() const OVERRIDE{ return true; }
@@ -283,9 +291,18 @@ class dialog_list_convoi_t : public tool_t {
 public:
 	dialog_list_convoi_t() : tool_t(DIALOG_LIST_CONVOI | DIALOGE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("cl_title"); }
+	// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players.  1/4 - 2
+	// [mod : shingoushori] ... guess public_player couldn't own vehicle
+	image_id get_icon(player_t* player_) const OVERRIDE{ return player_->get_player_nr() == 1 ? IMG_EMPTY : icon; }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_convoi_list + welt->get_active_player_nr()); }
-		bool init(player_t* player_) OVERRIDE{
+	/*bool init(player_t* player_) OVERRIDE{
 		create_win(new convoi_frame_t(player_), w_info, magic_convoi_list + player_->get_player_nr());
+		return false;
+	}*/
+	bool init(player_t* player_) OVERRIDE{
+		if (player_->get_player_nr() != welt->get_public_player()->get_player_nr()) {
+			create_win(new convoi_frame_t(player_), w_info, magic_convoi_list + player_->get_player_nr());
+		}
 		return false;
 	}
 	bool exit(player_t* const player) OVERRIDE{ destroy_win(magic_convoi_list + player->get_player_nr()); return false; }

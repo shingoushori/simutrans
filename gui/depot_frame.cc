@@ -1088,11 +1088,29 @@ void depot_frame_t::update_data()
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
 	}
+	// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players. 4/4 - 1
+	/*
 	if(  line_selector.get_selection() == 0  ) {
 		// no line selected
 		selected_line = linehandle_t();
 	}
+	*/
 	line_selector.sort( last_selected_line.is_bound()+3, NULL );
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+	const int buf_count_elements = line_selector.count_elements();
+	vector_tpl<linehandle_t> lines_public;
+	welt->get_public_player()->simlinemgmt.get_lines(depot->get_line_type(), &lines_public);
+	FOR(  vector_tpl<linehandle_t>,  const line,  lines_public  ) {
+		line_selector.append_element( new line_scrollitem_t(line) );
+		if(  selected_line.is_bound()  &&  selected_line == line  ) {
+			line_selector.set_selection( line_selector.count_elements() - 1 );
+		}
+	}
+	if(  line_selector.get_selection() == 0  ) {
+		// no line selected
+		selected_line = linehandle_t();
+	}
+	line_selector.sort( buf_count_elements, NULL );
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
@@ -1528,7 +1546,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 bool depot_frame_t::infowin_event(const event_t *ev)
 {
 	// enable disable button actions
-	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+	// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players.  4/4 - 2
+	const bool action_allowed = welt->get_active_player() == depot->get_owner() || welt->get_active_player() == welt->get_public_player();
+	//const bool action_allowed = welt->get_active_player() == depot->get_owner();
 	bt_new_line.enable( action_allowed );
 	bt_change_line.enable( action_allowed );
 	bt_copy_convoi.enable( action_allowed );
@@ -1593,7 +1613,9 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 
 void depot_frame_t::draw(scr_coord pos, scr_size size)
 {
-	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+	// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players.  4/4 - 3
+	const bool action_allowed = (welt->get_active_player() == depot->get_owner()) || (welt->get_active_player() == welt->get_public_player());
+	//const bool action_allowed = welt->get_active_player() == depot->get_owner();
 
 	bt_new_line.enable( action_allowed );
 	bt_change_line.enable( action_allowed );
@@ -1666,7 +1688,9 @@ void depot_frame_t::open_schedule_editor()
 			assert(schedule!=NULL);
 			gui_frame_t *schedulewin = win_get_magic( (ptrdiff_t)schedule );
 			if(  schedulewin == NULL  ) {
-				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
+				// [mod : shingoushori] To enable sharing convoi lines owned by public player, among players.  4/4 - 4
+				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() || welt->get_active_player() == welt->get_public_player());
+				//cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
 			}
 			else {
 				top_win( schedulewin );
