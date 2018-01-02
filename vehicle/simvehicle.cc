@@ -321,7 +321,7 @@ uint32 vehicle_base_t::do_drive(uint32 distance)
 
 		// Hop as many times as possible.
 		while(  steps_target > steps_next  &&  (gr = hop_check())  ) {
-			/*[mod]*///fprintf(stderr,"\nvehicle_base_t::do_drive Hop ");// now do the update for hopping
+			// now do the update for hopping
 			steps_target -= steps_next+1;
 			steps_done += steps_next+1;
 			koord pos_prev(get_pos().get_2d());
@@ -349,7 +349,6 @@ uint32 vehicle_base_t::do_drive(uint32 distance)
 					}
 				}
 			}
-			/*[mod]*///fprintf(stderr,"\n%d %d",get_xoff(),get_yoff());
 		}
 
 		if(  steps_next == 0  ) {
@@ -529,9 +528,8 @@ sint16 vehicle_base_t::get_hoff(const sint16 raster_width) const
  * also used for citycars, thus defined here
  */
 vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction )
-{/*[mod]*///fprintf(stderr,"\nvehicle_base_t::no_cars_blocking ");
+{
 	// Search vehicle
-	/*[mod]*/uint8 car_count = 0;
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
@@ -546,7 +544,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 				if(  cnv == at->get_convoi()  ) {
 					continue;
 				}
-				other_direction = at->get_direction();/*[mod]*/car_count+=1;
+				other_direction = at->get_direction();
 				other_moving = at->get_convoi()->get_akt_speed() > kmh_to_speed(1);
 			}
 			// check for city car
@@ -558,7 +556,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 			}
 
 			// ok, there is another car ...
-			if(  other_direction != 255 && car_count >= 1 ) {/*[mod]*///fprintf(stderr,"car_count:%d",car_count);
+			if(  other_direction != 255 ) {
 				if(  next_direction == other_direction  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  ) {
 					// cars going in the same direction and no crossing => that mean blocking ...
 					return v;
@@ -992,7 +990,7 @@ bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_
 
 
 grund_t* vehicle_t::hop_check()
-{/*[mod]*///fprintf(stderr,"\n\nvehicle_t::hop_check %d %s", cnv->get_vehicle_count(), cnv->get_name());
+{
 	// the leading vehicle will do all the checks
 	if(leading) {
 		if(check_for_finish) {
@@ -1062,7 +1060,7 @@ grund_t* vehicle_t::hop_check()
 
 
 bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
-{/*[mod]*///fprintf(stderr,"\nvehicle_t::can_enter_tile ");
+{
 	grund_t *gr = welt->lookup( pos_next );
 	if(  gr  ) {
 		return can_enter_tile( gr, restart_speed, second_check_count );
@@ -2083,10 +2081,10 @@ bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_dire
 
 
 bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8 second_check_count)
-{/*[mod]*///fprintf(stderr,"\nroad_vehicle_t::can_enter_tile ");
+{
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(  leading  ) {
-		/*[mod]*///fprintf(stderr,"leading second_check_count:%d",second_check_count);// no further check, when already entered a crossing (to allow leaving it)
+		// no further check, when already entered a crossing (to allow leaving it)
 		if(  !second_check_count  ) {
 			const grund_t *gr_current = welt->lookup(get_pos());
 			if(  gr_current  &&  gr_current->ist_uebergang()  ) {
