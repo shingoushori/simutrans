@@ -466,6 +466,10 @@ void player_t::ai_bankrupt()
 
 		// last vehicle on that connection (no line => railroad)
 		if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
+			// [mod : shingoushori] Fix ... To enable sharing convoi lines owned by public player, among players.
+			if(line->get_owner()!=this) {
+				continue;
+			}
 			simlinemgmt.delete_line( line );
 		}
 	}
