@@ -6800,7 +6800,29 @@ bool tool_change_convoi_t::init( player_t *player )
 					schedule_t *schedule = cnv->create_schedule();
 					if(  schedule  &&  l->get_schedule()  &&  schedule->get_type()!=l->get_schedule()->get_type()  ) {
 						dbg->warning("tool_change_convoi_t::init", "types of convoi and line do not match");
-						return false;
+						// [mod : shingoushori] expr : sharing the line between train and convoi 2/
+						bool b_force = false;
+						switch (schedule->get_type()) {
+						  case simline_t::truckline : 
+						if(l->get_schedule()->get_type()==simline_t::trainline ||
+						   l->get_schedule()->get_type()==simline_t::tramline) {
+							b_force = true;
+						}
+						break;
+					  case simline_t::trainline : 
+						if(l->get_schedule()->get_type()==simline_t::truckline ||
+						   l->get_schedule()->get_type()==simline_t::tramline) {
+							b_force = true;
+						}
+					  case simline_t::tramline : 
+						if(l->get_schedule()->get_type()==simline_t::truckline ||
+						   l->get_schedule()->get_type()==simline_t::trainline) {
+							b_force = true;
+						}
+						}
+						if (!b_force) {
+							return false;
+						}
 					}
 					if(  count==1 ) {
 						// current_stop was not supplied -> take it from line schedule

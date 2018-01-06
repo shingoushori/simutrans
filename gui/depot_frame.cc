@@ -1106,11 +1106,74 @@ void depot_frame_t::update_data()
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
 	}
+	// [mod : shingoushori] expr : sharing the line between train and convoi 1/
+	/*
 	if(  line_selector.get_selection() == 0  ) {
 		// no line selected
 		selected_line = linehandle_t();
 	}
+	*/
 	line_selector.sort( buf_count_elements, NULL );
+	class extra_line_appender{
+	  private:
+		depot_t* depot;
+		karte_t* welt;
+		linehandle_t selected_line;
+		gui_combobox_t* line_selector;
+		char* line_seperator;
+	  public:
+		extra_line_appender(depot_t* _depot, karte_t* _welt, linehandle_t _selected_line, gui_combobox_t* _line_selector, const char* _line_seperator)
+				{depot = _depot; welt = _welt; selected_line = _selected_line; line_selector = _line_selector; line_seperator = (char*)_line_seperator;}
+		~extra_line_appender()
+				{depot = NULL; welt = NULL; line_selector = NULL; line_seperator = NULL;}
+		void append(int extra_line_type, const char* extra_separator=NULL)
+				{
+				 line_selector->append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+				 if (extra_separator!=NULL){line_selector->append_element( new gui_scrolled_list_t::const_text_scrollitem_t( extra_separator, SYSCOL_TEXT ) );}
+			int buf_count_elements = line_selector->count_elements();
+			vector_tpl<linehandle_t> lines_buf;
+			depot->get_owner()->simlinemgmt.get_lines(extra_line_type, &lines_buf);
+			FOR(  vector_tpl<linehandle_t>,  const line,  lines_buf  ) {
+				line_selector->append_element( new line_scrollitem_t(line) );
+				if(  selected_line.is_bound()  &&  selected_line == line  ) {
+					line_selector->set_selection( line_selector->count_elements() - 1 );
+				}
+			}
+			line_selector->sort( buf_count_elements, NULL );
+			//
+			line_selector->append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+			buf_count_elements = line_selector->count_elements();
+			lines_buf.clear();
+			welt->get_public_player()->simlinemgmt.get_lines(extra_line_type, &lines_buf);
+			FOR(  vector_tpl<linehandle_t>,  const line,  lines_buf  ) {
+				line_selector->append_element( new line_scrollitem_t(line) );
+				if(  selected_line.is_bound()  &&  selected_line == line  ) {
+					line_selector->set_selection( line_selector->count_elements() - 1 );
+				}
+			}
+			line_selector->sort( buf_count_elements, NULL );
+				 }
+	};
+	extra_line_appender appender(depot, welt, selected_line, &line_selector, line_seperator);
+	// template : "--------------------------------" 32 chars
+	switch (depot->get_line_type()) {
+	  case simline_t::truckline : 
+		appender.append(simline_t::trainline, "= train =");
+		appender.append(simline_t::tramline,  "= tram =");
+		break;
+	  case simline_t::trainline : 
+		appender.append(simline_t::truckline, "= truck =");
+		appender.append(simline_t::tramline,  "= tram =");
+		break;
+	  case simline_t::tramline : 
+		appender.append(simline_t::truckline, "= truck =");
+		appender.append(simline_t::trainline, "= train =");
+		break;
+	}
+	if(  line_selector.get_selection() == 0  ) {
+		// no line selected
+		selected_line = linehandle_t();
+	}
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
