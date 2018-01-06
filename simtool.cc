@@ -6598,7 +6598,21 @@ void tool_rotate90_t::draw_after(scr_coord pos, bool dirty) const
 bool tool_rotate90_t::init( player_t * )
 {
 	if(  !env_t::networkmode  ) {
-		welt->rotate90();
+		// [mod : shingoushori] extra rotate mode : {ctrl : reset, shift : rotate-90}
+		if (is_ctrl_pressed()) {
+			// default : reset rotate
+			for(int r = welt->get_settings().get_rotation(); r % 4 != 0; r++){
+				fprintf(stderr," %d",welt->get_settings().get_rotation());
+				welt->rotate90();
+			}
+		} else if (is_shift_pressed()){
+			// default : rotate-90
+			welt->rotate90(); welt->rotate90(); welt->rotate90();
+		} else {
+			// default : rotate90
+			welt->rotate90();
+		}
+		fprintf(stderr,"welt->get_settings().get_rotation() : %d\n",welt->get_settings().get_rotation());
 		welt->update_map();
 	}
 	return false;
