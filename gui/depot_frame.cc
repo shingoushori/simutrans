@@ -1106,7 +1106,7 @@ void depot_frame_t::update_data()
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
 	}
-	// [mod : shingoushori] expr : sharing the line between train and convoi 1/
+	// [mod : shingoushori] expr : sharing the line between train and convoi 1/2
 	/*
 	if(  line_selector.get_selection() == 0  ) {
 		// no line selected

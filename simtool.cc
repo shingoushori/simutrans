@@ -6800,7 +6800,7 @@ bool tool_change_convoi_t::init( player_t *player )
 					schedule_t *schedule = cnv->create_schedule();
 					if(  schedule  &&  l->get_schedule()  &&  schedule->get_type()!=l->get_schedule()->get_type()  ) {
 						dbg->warning("tool_change_convoi_t::init", "types of convoi and line do not match");
-						// [mod : shingoushori] expr : sharing the line between train and convoi 2/
+						// [mod : shingoushori] expr : sharing the line between train and convoi 2/2
 						bool b_force = false;
 						switch (schedule->get_type()) {
 						  case simline_t::truckline : 
