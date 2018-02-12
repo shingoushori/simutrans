@@ -962,7 +962,22 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_raise(player, k, err);
+				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 1/2
+				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
+					const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
+					// fprintf(stderr,"trgt_hgt : %d hoehe : %d", hgt, gr->get_hoehe(welt->get_corner_to_operate(k)));
+					while (gr->get_hoehe(welt->get_corner_to_operate(k)) < hgt) {
+						n += welt->grid_raise(player, k, err);
+						// fprintf(stderr," %d", gr->get_hoehe(welt->get_corner_to_operate(k)));
+					}
+					while (gr->get_hoehe(welt->get_corner_to_operate(k)) > hgt) {
+						n += welt->grid_lower(player, k, err);
+						// fprintf(stderr," %d", gr->get_hoehe(welt->get_corner_to_operate(k)));
+					}
+					// fprintf(stderr,"\n");
+				} else {
+					n = welt->grid_raise(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
@@ -1037,7 +1052,22 @@ const char *tool_lower_t::work( player_t *player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_lower(player, k, err);
+				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 2/2
+				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
+					const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
+					// fprintf(stderr,"trgt_hgt : %d hoehe : %d", hgt, gr->get_hoehe(welt->get_corner_to_operate(k)));
+					while (gr->get_hoehe(welt->get_corner_to_operate(k)) < hgt) {
+						n += welt->grid_raise(player, k, err);
+						// fprintf(stderr," %d", gr->get_hoehe(welt->get_corner_to_operate(k)));
+					}
+					while (gr->get_hoehe(welt->get_corner_to_operate(k)) > hgt) {
+						n += welt->grid_lower(player, k, err);
+						// fprintf(stderr," %d", gr->get_hoehe(welt->get_corner_to_operate(k)));
+					}
+					// fprintf(stderr,"\n");
+				} else {
+					n = welt->grid_lower(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
