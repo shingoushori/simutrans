@@ -60,6 +60,12 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	
+	// [mod : shingoushori] expr of mod : to enable dragging of build house / remove tool 1/2
+	// It is not enough of the network safe
+	// then i will port the implementation of tool_raise_lower_base_t in the future ...
+	char const* move(player_t *player, uint16 buttonstate, koord3d pos) OVERRIDE {return work(player, pos);}
+	bool move_has_effects() const OVERRIDE { return true; }
 };
 
 // alter land height tools
@@ -503,6 +509,12 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	
+	// [mod : shingoushori] expr of mod : to enable dragging of build house / remove tool 2/2
+	// It is not enough of the network safe
+	// then i will port the implementation of tool_raise_lower_base_t in the future ...
+	char const* move(player_t *player, uint16 buttonstate, koord3d pos) OVERRIDE {return work(player, pos);}
+	bool move_has_effects() const OVERRIDE { return true; }
 };
 
 /* builds an (if param=NULL random) industry chain starting here *
