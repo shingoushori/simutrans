@@ -2308,7 +2308,13 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 		}
 		// ok, now we have a valid ground
 		if(append) {
-			schedule->append(bd);
+			// [mod : shingoushori] Extended tool schedule v2 : copy current properties at append 1/1
+			if ( tool->is_ctrl_pressed() ) {
+				schedule->append(bd, schedule->get_current_entry().minimum_loading, schedule->get_current_entry().waiting_time_shift);
+			}
+			else {
+				schedule->append(bd);
+			}
 		}
 		else {
 			// [mod : shingoushori] Extended tool schedule v1 : swap 2/2
