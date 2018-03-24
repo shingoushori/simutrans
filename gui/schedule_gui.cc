@@ -470,6 +470,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 						// [mod : shingoushori] Extended tool schedule v3 : Added variations on remove 1/1
 						if ( IS_SHIFT_PRESSED(ev) && IS_CONTROL_PRESSED(ev) ) {
 							// Shift + Ctrl : clear = remove all
+							stats.highlight_schedule( schedule, false );
 							schedule->entries.clear();
 						}
 						else if ( IS_SHIFT_PRESSED(ev) ) { // IS_SHIFT_PRESSED(ev) : defined at simevent.h
