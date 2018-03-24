@@ -2275,7 +2275,9 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
  * So if there is a halt, then it must be either public or ours!
  * @author prissi
  */
-static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
+// [mod : shingoushori] Extended tool schedule v1 : swap 1/2
+//static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
+static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append, tool_t *tool)
 {
 	if(schedule == NULL) {
 		dbg->warning("tool_schedule_insert_aux()","Schedule is (null), doing nothing");
@@ -2309,7 +2311,16 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 			schedule->append(bd);
 		}
 		else {
-			schedule->insert(bd);
+			// [mod : shingoushori] Extended tool schedule v1 : swap 2/2
+			if ( tool->is_ctrl_pressed() ) {
+				uint8 current_stop = schedule->get_current_stop();
+				schedule->insert(bd, schedule->get_current_entry().minimum_loading, schedule->get_current_entry().waiting_time_shift);
+				schedule->remove();
+				schedule->set_current_stop(current_stop);
+			}
+			else {
+				schedule->insert(bd);
+			}
 		}
 	}
 	return NULL;
@@ -2317,12 +2328,12 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 
 const char *tool_schedule_add_t::work( player_t *player, koord3d pos )
 {
-	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), true );
+	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), true, this );
 }
 
 const char *tool_schedule_ins_t::work( player_t *player, koord3d pos )
 {
-	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), false );
+	return tool_schedule_insert_aux( welt, player, pos, (schedule_t*)const_cast<char *>(default_param), false, this );
 }
 
 
