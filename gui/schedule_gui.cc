@@ -467,9 +467,33 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 				else if(  ev->mx<scrolly.get_size().w-11  ) {
 					schedule->set_current_stop( line );
 					if(  mode == removing  ) {
-						stats.highlight_schedule( schedule, false );
-						schedule->remove();
-						action_triggered( &bt_add, value_t() );
+						// [mod : shingoushori] Extended tool schedule v3 : Added variations on remove 1/1
+						if ( IS_SHIFT_PRESSED(ev) && IS_CONTROL_PRESSED(ev) ) {
+							// Shift + Ctrl : clear = remove all
+							schedule->entries.clear();
+						}
+						else if ( IS_SHIFT_PRESSED(ev) ) { // IS_SHIFT_PRESSED(ev) : defined at simevent.h
+							// Shift : remove all below the current selection
+							stats.highlight_schedule( schedule, false );
+							for (int n = schedule->get_count() - 1; n > schedule->get_current_stop(); n--){
+								schedule->entries.remove_at(n);
+							}
+							action_triggered( &bt_add, value_t() );
+						}
+						else if ( IS_CONTROL_PRESSED(ev) ) { // IS_CONTROL_PRESSED(ev) : defined at simevent.h
+							// Ctrl : remove all above the current selection
+							stats.highlight_schedule( schedule, false );
+							for (int n = schedule->get_current_stop() - 1; n >= 0 ; n--){
+								schedule->entries.remove_at(n);
+							}
+							schedule->set_current_stop(0);
+							action_triggered( &bt_add, value_t() );
+						}
+						else {
+							stats.highlight_schedule( schedule, false );
+							schedule->remove();
+							action_triggered( &bt_add, value_t() );
+						}
 					}
 					update_selection();
 				}
