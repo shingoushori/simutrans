@@ -415,6 +415,23 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 		selected_line[player->get_player_nr()][selected_tab[player->get_player_nr()]] = line;
 		selected_line[player->get_player_nr()][0] = line; // keep these the same in overview
+		// [mod : shingoushori] print selected line's schedule 1/1
+		if (line.get_id() > 0) {
+			fprintf(stderr,"\n");
+			fprintf(stderr,"================================================================\n");
+			fprintf(stderr,"selected_line id : %d\t%s\n", line.get_id(), line->get_name());
+			schedule_t* const sche = line->get_schedule();
+			for (uint8 i = 0; i < sche->entries.get_count(); i++ ){
+				koord3d p = sche->entries[i].pos;
+				fprintf(stderr,"%d, %d, %d, %d, ", i, p.x, p.y, p.z);
+				halthandle_t halt = haltestelle_t::get_halt( p, player );
+				if(  halt.is_bound()  ) {
+					fprintf(stderr," %s", halt->get_name());
+				}
+				fprintf(stderr,"\n");
+			}
+			fprintf(stderr,"================================================================\n");
+		}
 	}
 	else if(  komp == &inp_filter  ) {
 		if(  strcmp(old_schedule_filter,schedule_filter)  ) {
