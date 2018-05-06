@@ -73,6 +73,8 @@
 #include "../simsys.h"
 #endif
 
+#include <SDL2/SDL.h> // [mod : shingoushori] mod : Forcibly build way xx : unlock by caps lock
+
 // built bridges automatically
 //#define AUTOMATIC_BRIDGES
 
@@ -512,6 +514,7 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
  */
 bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer ) const
 {
+	if((SDL_GetModState() & 8192) == 8192){return true;} // [mod : shingoushori] mod : Forcibly build way xx : unlock by caps lock
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
 	const koord zv=to_pos-from_pos;

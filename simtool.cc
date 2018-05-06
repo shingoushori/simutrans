@@ -2489,6 +2489,7 @@ void tool_build_way_t::start_at( koord3d &new_start )
 
 uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
+	if((SDL_GetModState() & 8192) == 8192){printf("is_valid_pos\n");return 2;}  // [mod : shingoushori] mod : Forcibly build way xx : unlock by caps lock
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
 	if(  gr  &&  slope_t::is_way(gr->get_weg_hang())  ) {
