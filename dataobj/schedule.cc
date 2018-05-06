@@ -141,7 +141,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 }
 
 
-
+#include <SDL2/SDL.h> // [mod : shingoushori] mod : Extended tool schedule xx : unlock by caps lock
 bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_time_shift)
 {
 	// stored in minivec, so we have to avoid adding too many
@@ -149,7 +149,11 @@ bool schedule_t::append(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 		create_win( new news_img("Maximum 254 stops\nin a schedule!\n"), w_time_delete, magic_none);
 		return false;
 	}
-
+	
+	if((SDL_GetModState() & 8192) == 8192){ // [mod : shingoushori] mod : Extended tool schedule xx : unlock by caps lock
+		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift), 4);
+		return true;
+	}
 	if(is_stop_allowed(gr)) {
 		entries.append(schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift), 4);
 		return true;

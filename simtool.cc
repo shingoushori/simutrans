@@ -95,6 +95,8 @@
 #include "simtool.h"
 #include "player/finance.h"
 
+#include <SDL2/SDL.h> // [mod : shingoushori] mod : Extended tool schedule xx : unlock by caps lock
+
 
 #define is_scenario()  welt->get_scenario()->is_scripted()
 
@@ -2285,6 +2287,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 	}
 	grund_t *bd = welt->lookup(pos);
 	if (bd) {
+		if((SDL_GetModState() & 8192) == 0){fprintf(stderr,"==0"); // [mod : shingoushori] mod : Extended tool schedule xx : unlock by caps lock
 		// now just for error messages, we're assuming a valid ground
 		// check for right way type
 		if(!schedule->is_stop_allowed(bd)) {
@@ -2306,6 +2309,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 		if(  bd->is_halt()  &&  !player_t::check_owner( player, bd->get_halt()->get_owner()) ) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
+		} // [mod : shingoushori] mod : Extended tool schedule xx : unlock by caps lock
 		// ok, now we have a valid ground
 		if(append) {
 			// [mod : shingoushori] Extended tool schedule v2 : copy current properties at append 1/1
