@@ -32,10 +32,12 @@ else
 		ifeq ($(OSTYPE),mingw)
 			CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
 			LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
+			ifneq ($(USE_FREETYPE),)
+				LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
+			endif
 			ifneq ($(STATIC),)
 				ifeq ($(shell expr $(STATIC) \>= 1), 1)
 					CFLAGS  += -static
-					LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
 					# other libs like SDL2 MUST be dynamic!
 				endif
 			endif
@@ -68,13 +70,13 @@ else
 endif
 
 ifneq ($(OSTYPE),mingw)
-	# already defined
-	LIBS += -lbz2 -lz
+ LIBS += -lbz2 -lz
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
+FREETYPE_CONFIG ?= freetype-config
 
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
@@ -110,6 +112,25 @@ endif
 
 ifdef MSG_LEVEL
 	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+endif
+
+ifneq ($(USE_UPNP),)
+  CFLAGS  += -DUSE_UPNP
+	ifeq ($(OSTYPE),mingw)
+    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
+	else
+    LDFLAGS += -lminiupnpc
+	endif
+endif
+
+ifneq ($(USE_FREETYPE),)
+  CFLAGS  += -DUSE_FREETYPE
+	ifneq ($(FREETYPE_CONFIG),)
+    CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
+	  LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+	else
+	  LDFLAGS += -lfreetype
+	endif
 endif
 
 ifneq ($(PROFILE),)
@@ -311,6 +332,7 @@ SOURCES += gui/labellist_stats_t.cc
 SOURCES += gui/line_item.cc
 SOURCES += gui/line_management_gui.cc
 SOURCES += gui/load_relief_frame.cc
+SOURCES += gui/loadfont_frame.cc
 SOURCES += gui/loadsave_frame.cc
 SOURCES += gui/map_frame.cc
 SOURCES += gui/message_frame_t.cc
