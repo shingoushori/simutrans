@@ -1619,6 +1619,14 @@ void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3
 		else {
 			diff = (pos.y>ziel.y) ? ribi_t::north : ribi_t::south;
 		}
+		// [mod : shingoushori] mod : Forcibly build way xx : Forced laying Base omitted Elevated Way
+		if (true) {
+			grund_t *bd_nach = welt->lookup(pos + diff);
+			ok = true;
+			pos = bd_nach->get_pos();
+			pos.z = start.z;
+			check_terraform = true;
+		}else
 		if(bautyp&tunnel_flag) {
 			// create fake tunnel grounds if needed
 			bool bd_von_new = false, bd_nach_new = false;
