@@ -55,6 +55,8 @@
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
 
+#include <SDL2/SDL.h>	// [mod : shingoushori] expr : Save the home of the removed city 1/5
+#include "obj/label.h"
 
 #define PACKET_SIZE (7)
 
@@ -959,6 +961,55 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
+	// [mod : shingoushori] expr : Save the home of the removed city 2/5
+	// do_save ~ transfer to nearest city of current city hall ~
+	// shift : do_save + is_transfer_townhall
+	// ctrl  : do_save
+	bool is_transfer_townhall = ((SDL_GetModState() & 1) == 1); // 1 : shift
+	bool do_save = is_transfer_townhall || ((SDL_GetModState() & 64) == 64); // 64 : ctrl
+	if(do_save){
+		if(welt->get_settings().get_city_count() == 0) {is_transfer_townhall = false;}
+		//fprintf(stderr,"city %d", welt->get_settings().get_city_count());
+		//fprintf(stderr,"(%d,%d) (%d,%d)\n",((obj_t *)welt->get_zeiger())->get_pos().x,((obj_t *)welt->get_zeiger())->get_pos().y,pos.x,pos.y);
+		//koord3d posZeiger = ((obj_t *)welt->get_zeiger())->get_pos();
+		//welt->lookup(posZeiger)
+		stadt_t *city = welt->find_nearest_city(this->get_pos());
+		
+		// only if there is still a world left to delete from
+		if( welt->get_size().x > 1 ) {
+			
+			const char* text = welt->lookup_kartenboden(pos)->get_text();
+			koord3d pos3d = welt->lookup_kartenboden(pos)->get_pos();
+			welt->lookup_kartenboden(pos)->obj_add(new label_t(pos3d, welt->get_public_player(), text));
+			
+			if (!welt->is_destroying()) {
+				// remove city info and houses
+				while (!buildings.empty()) {
+					
+					gebaeude_t* const gb = buildings.pop_back();
+					assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+					
+					if( is_transfer_townhall || gb->get_tile()->get_desc()->get_type()!=building_desc_t::townhall) {
+						gb->set_stadt( city );
+						if(city) {
+							city->buildings.append(gb, gb->get_passagier_level());
+						}
+					}
+					else {
+						gb->set_stadt( NULL );
+						hausbauer_t::remove(welt->get_public_player(),gb);
+					}
+				}
+				// avoid the bookkeeping if world gets destroyed
+			}
+			if(city) {
+				city->recalc_city_size();
+			}
+		}
+	}
+	// original ...
+	else {
+
 	// only if there is still a world left to delete from
 	if( welt->get_size().x > 1 ) {
 
@@ -985,6 +1036,8 @@ stadt_t::~stadt_t()
 			}
 			// avoid the bookkeeping if world gets destroyed
 		}
+	}
+
 	}
 }
 
@@ -3520,4 +3573,30 @@ too_close:
 	delete list;
 
 	return result;
+}
+
+// [mod : shingoushori] expr : Save the home of the removed city 4/5
+vector_tpl<gebaeude_t *> *stadt_t::get_townhalls()
+{
+	int N_building = buildings.get_count();
+	vector_tpl<gebaeude_t*>* townhalls = new vector_tpl<gebaeude_t*>();
+	for (int n_building = 0; n_building < N_building; n_building++){
+		gebaeude_t* const gb = buildings[n_building];
+		if(gb->get_tile()->get_desc()->get_type()==building_desc_t::townhall) {
+			if(townhalls->get_count() == 0) {townhalls->append(gb);}
+			else {
+				uint32 n_townhall = 0;
+				FOR(vector_tpl<gebaeude_t*>, const i, *townhalls) {
+					if (i->is_same_building(gb)) {
+						break;
+					}
+					n_townhall++;
+				}
+				if (n_townhall == townhalls->get_count()) {
+					townhalls->append(gb);
+				}
+			}
+		}
+	}
+	return townhalls;
 }

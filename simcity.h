@@ -631,6 +631,11 @@ public:
 	// geeigneten platz zur Citygruendung durch Zufall ermitteln
 
 	void open_info_window();
+
+	// [mod : shingoushori] expr : Save the home of the removed city 3/5
+	vector_tpl<gebaeude_t *> *get_townhalls();
+	void set_pos(koord pos_) {pos = pos_;}
+
 };
 
 #endif

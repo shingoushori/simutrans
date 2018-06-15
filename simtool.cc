@@ -666,6 +666,41 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		// remove town? (when removing townhall)
 		if(gb->is_townhall()) {
 			stadt_t *stadt = welt->find_nearest_city(k);
+			// [mod : shingoushori] expr : Save the home of the removed city 5/5
+			if(is_shift_pressed()){
+				// if clicked on the pos of the sub townhall which is not placed on pos of stadt
+				// remove it
+				//grund_t *gr = welt->lookup(pos);
+				grund_t *gr_stadt = welt->lookup_kartenboden(stadt->get_pos());
+				gebaeude_t *gb_stadt = gr_stadt->find<gebaeude_t>();
+				if(!gb->is_same_building(gb_stadt)){
+					hausbauer_t::remove( player, gb );
+					return true;
+				}
+				// clicked on the pos of stadt
+				// if stadt has sub townhalls, move to the one of these
+				vector_tpl<gebaeude_t *> *townhalls = stadt->get_townhalls();
+				if(townhalls->get_count() > 1) {
+					gebaeude_t *gb_new = NULL;
+					FOR(vector_tpl<gebaeude_t*>, const i, *townhalls) {
+						if (!i->is_same_building(gb)) {
+							gb_new = i;
+							break;
+						}
+					}
+					if(gb_new){
+						// maintain text owner
+						koord pos_current = stadt->get_pos();
+						const char* text = welt->lookup_kartenboden(pos_current)->get_text();
+						koord3d pos3d = welt->lookup_kartenboden(pos_current)->get_pos();
+						welt->lookup_kartenboden(pos_current)->obj_add(new label_t(pos3d, welt->get_public_player(), text));
+						// move the pos of stadt
+						stadt->set_pos(koord(gb_new->get_pos().x,gb_new->get_pos().y));
+						hausbauer_t::remove( player, gb );
+						return true;
+					}
+				}
+			}
 			if(!welt->remove_city( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
