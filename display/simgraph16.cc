@@ -1892,16 +1892,6 @@ void display_fit_img_to_width( const image_id n, sint16 new_w )
 }
 
 
-/**
- * Retrieve brightness setting
- * @author Hj. Malthaner
- */
-int display_get_light()
-{
-	return light_level;
-}
-
-
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
@@ -2045,18 +2035,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	}
 
 	// convert to RGB xxx
-	recode();
-}
-
-
-/**
- * Set brightness setting
- * @author Hj. Malthaner
- */
-void display_set_light(int new_light_level)
-{
-	light_level = new_light_level;
-	calc_base_pal_from_night_shift(night_shift);
 	recode();
 }
 
@@ -4170,7 +4148,7 @@ uint16 display_load_font(const char* fname)
 		dbg->fatal( "display_load_font", "NULL filename" );
 	}
 	// skip reloading if already in memory, if bdf font
-	if(  strcmp( large_font.fname, fname ) == 0  &&  strstr(fname,".bdf")  ) {
+	if(  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
 		return large_font.num_chars;
 	}
 

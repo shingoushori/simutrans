@@ -803,15 +803,15 @@ void network_core_shutdown()
 	network_active = false;
 #ifndef NETTOOL
 	env_t::networkmode = false;
-	network_server_port = 0;
+	network_server_port = 0;	// this also sets ent_t::server to zero
 #endif
 }
 
 
-/* The following helper routines will be  used with the easy-server setup, to host machines behind 
+/* The following helper routines will be  used with the easy-server setup, to host machines behind
  * routers with frequently changing IP addresses.
  */
-
+#ifndef NETTOOL
 
 #include "../utils/cbuffer_t.h"
 #include "network_file_transfer.h"
@@ -831,7 +831,7 @@ bool get_external_IP( cbuffer_t &myIPaddr )
  */
 
 extern "C" {
-#define MINIUPNPC_DECLSPEC_H_INCLUDED 
+#define MINIUPNPC_DECLSPEC_H_INCLUDED
 #define MINIUPNP_LIBSPEC extern
 
 //#define MINIUPNP_STATICLIB
@@ -848,12 +848,11 @@ bool prepare_for_server( char *externalIPAddress, int port )
 {
 	char lanaddr[64] = "unset";	/* my ip address on the LAN */
 	int error = 0;
-	const char *rootdescurl = 0;
 	const char *multicastif = 0;
 	const char *minissdpdpath = 0;
 	int localport = UPNP_LOCAL_PORT_ANY;
 	int ipv6 = 0; // probably not needed for IPv6 ever ...
-	unsigned char ttl = 2;	/* defaulting to 2 */
+	unsigned char ttl = 2; (void)ttl; /* defaulting to 2 */
 	struct UPNPDev *devlist = 0;
 	bool has_IP = false;
 
@@ -901,7 +900,7 @@ bool prepare_for_server( char *externalIPAddress, int port )
 // removes the redirect (or do nothing)
 void remove_port_forwarding( int port )
 {
-	if(  port <= 0  ) {
+	if(  port <= 0  ||  env_t::easy_server != 1  ) {
 		return;
 	}
 
@@ -912,9 +911,8 @@ void remove_port_forwarding( int port )
 	const char *minissdpdpath = 0;
 	int localport = UPNP_LOCAL_PORT_ANY;
 	int ipv6 = 0; // probably not needed for IPv6 ever ...
-	unsigned char ttl = 2;	/* defaulting to 2 */
+	unsigned char ttl = 2; (void)ttl; /* defaulting to 2 */
 	struct UPNPDev *devlist = 0;
-	bool has_IP = false;
 
 	if(  (devlist = upnpDiscover( 2000, multicastif, minissdpdpath, localport, ipv6, ttl, &error ))  ) {
 		struct UPNPUrls urls;
@@ -925,7 +923,6 @@ void remove_port_forwarding( int port )
 		if(  UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress) ==  UPNPCOMMAND_SUCCESS  ) {
 			// this is our ID (at least the routes tells us this)
 			char eport[19];
-			char *iport = eport;
 			sprintf( eport, "%d", port );
 			// setting up tcp redirect forever (last parameter "0")
 			UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, eport, "TCP", NULL);
@@ -953,3 +950,4 @@ void remove_port_forwarding( int )
 {
 }
 #endif
+#endif // not NETTOOL
