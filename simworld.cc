@@ -4996,6 +4996,7 @@ bool karte_t::load(const char *filename)
 DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 
 		load(&file);
+DBG_MESSAGE("karte_t::load()","load(&file); - done"); // [mod : shingoushori] to debug
 
 		if(  env_t::networkmode  ) {
 			clear_command_queue();
@@ -5115,6 +5116,7 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 	}
 	settings.set_filename(filename);
 	display_show_load_pointer(false);
+DBG_MESSAGE("karte_t::load()"," - return ok;"); // [mod : shingoushori] to debug
 	return ok;
 }
 
@@ -6879,6 +6881,8 @@ bool karte_t::interactive(uint32 quit_month)
 void karte_t::announce_server(int status)
 {
 	DBG_DEBUG( "announce_server()", "status: %i",  status );
+	DBG_DEBUG( "announce_server()", "env_t::networkmode: %i, env_t::server: %i", env_t::networkmode, env_t::server ); // [mod : shingoushori] to dbg
+	if(  !env_t::server  ) {return;} // [mod : shingoushori] failsafe
 	// Announce game info to server, format is:
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
 	// (This is the data part of an HTTP POST)
@@ -6961,12 +6965,15 @@ void karte_t::announce_server(int status)
 		else {
 			buf.append( "&st=0" );
 		}
-
+		
+		DBG_DEBUG( "announce_server()", "network_http_post - start" ); // [mod : shingoushori] to dbg
 		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
+		DBG_DEBUG( "announce_server()", "network_http_post - end" ); // [mod : shingoushori] to dbg
 
 		// Record time of this announce
 		server_last_announce_time = dr_time();
 	}
+	DBG_DEBUG( "announce_server()", "status: %i - done",  status ); // [mod : shingoushori] to dbg
 }
 
 

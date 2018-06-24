@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjî’šg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -76,7 +76,7 @@ public:
 
 private:
 	/**
-	 * Manche Methoden müssen auf alle Haltestellen angewandt werden
+	 * Manche Methoden mï¿½sen auf alle Haltestellen angewandt werden
 	 * deshalb verwaltet die Klasse eine Liste aller Haltestellen
 	 * @author Hj. Malthaner
 	 */
@@ -203,7 +203,7 @@ public:
 	static void destroy_all();
 
 	/**
-	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
+	 * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehî’šen
 	 * @author Hj. Malthaner
 	 */
 	struct tile_t
@@ -606,7 +606,7 @@ public:
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
-	 * gibt Gesamtmenge derware vom typ typ zurück
+	 * gibt Gesamtmenge derware vom typ typ zurï¿½k
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
@@ -643,7 +643,7 @@ public:
 	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
-	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
+	 * werden kann, kann ware_t gelî’›cht werden! D.h. man darf ware nach
 	 * aufruf dieser Methode nicht mehr referenzieren!
 	 *
 	 * The second version is like the first, but will not recalculate the route
