@@ -230,6 +230,7 @@ money_frame_t::money_frame_t(player_t *player)
 	if(welt->get_player(0)!=player) {
 		// [mod : singoushori] Simple fix for a long name player
 		//sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
+		/*
 		size_t i_head = strlen(translator::translate("Finances of %s"));
 		size_t i_name = strlen(translator::translate(player->get_name()));
 		char* c_temp = (char*)malloc(sizeof(char)*(i_head + i_name));
@@ -241,6 +242,8 @@ money_frame_t::money_frame_t(player_t *player)
 		}
 		sprintf(money_frame_title,"%s", c_temp);
 		free(c_temp);
+		*/
+		money_frame_title.printf(translator::translate("Finances of %s"), translator::translate(player->get_name()) );
 		set_name(money_frame_title);
 	}
 
