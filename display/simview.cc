@@ -144,6 +144,11 @@ void main_view_t::display(bool force_dirty)
 		else {
 			hours2 = ( (ticks_this_month * 3) >> (welt->ticks_per_world_month_shift-4) )%48;
 		}
+		[mod : shingoushori] expr : instant seasonal change sunrise sunset
+		static sint32 hours2_instant_seasonal_change_sunrise[12]={ 0, 1, 2, 3, 4, 5, 4, 3, 2, 2, 1, 0}; // base hours2 = 12 : 6am
+		static sint32 hours2_instant_seasonal_change_sunset [12]={ 6, 5, 4, 3, 2, 1, 1, 2, 4, 5, 6, 7}; // base hours2 = 40 : 8pm
+		if (hours2 < 24) { hours2 += hours2_instant_seasonal_change_sunrise[month]; if ((sint32)hours2 < 0) {hours2 = 0;} }
+		else { hours2 += hours2_instant_seasonal_change_sunset[month]; if (hours2 > 47) {hours2 = 47;} } 
 		display_day_night_shift(hours2night[hours2]+env_t::daynight_level);
 	}
 
