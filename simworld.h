@@ -27,6 +27,7 @@
 #include "dataobj/settings.h"
 #include "network/pwd_hash.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/rect.h"
 
 #include "simplan.h"
 
@@ -697,11 +698,6 @@ private:
 	 */
 	void update_map_intern(sint16, sint16, sint16, sint16);
 
-	/**
-	 * Updates images after change of underground mode.
-	 */
-	void update_underground_intern(sint16, sint16, sint16, sint16);
-
 public:
 	/**
 	 * Announce server and current state to listserver.
@@ -817,6 +813,14 @@ public:
 	 * Recalcs images after change of underground mode.
 	 */
 	void update_underground();
+
+	/**
+	 * @brief Prepares an area of the map to be drawn.
+	 *
+	 * New area is the area that will be prepared. Old area is the area that was
+	 * already prepared. Only the difference between the two rects is prepared.
+	 */
+	void prepare_tiles(rect_t const& new_area, rect_t const& old_area);
 
 	/**
 	 * @returns true if world gets destroyed

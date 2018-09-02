@@ -116,8 +116,7 @@ char const PATH_SEPARATOR[] = "/";
  */
 int get_mouse_x()
 {
-	// for resize events mx/my is new window size
-	return (sys_event.code != SYSTEM_RESIZE  &&  sys_event.type != SIM_NOEVENT) ? sys_event.mx : -100;
+	return sys_event.mx;
 }
 
 
@@ -127,7 +126,7 @@ int get_mouse_x()
  */
 int get_mouse_y()
 {
-	return (sys_event.code != SYSTEM_RESIZE  &&  sys_event.type != SIM_NOEVENT) ?  sys_event.my : -100;
+	return sys_event.my;
 }
 
 
@@ -366,10 +365,6 @@ char const *dr_query_homedir()
 	// create directory and subdirectories
 	dr_mkdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
-	dr_chdir(buffer);
-	dr_mkdir("maps");
-	dr_mkdir("save");
-	dr_mkdir(SCREENSHOT_PATH);
 
 	return buffer;
 }
