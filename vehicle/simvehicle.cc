@@ -528,7 +528,7 @@ sint16 vehicle_base_t::get_hoff(const sint16 raster_width) const
  * also used for citycars, thus defined here
  */
 vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction )
-{
+{return NULL;// [DCOP]
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
