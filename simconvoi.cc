@@ -3584,7 +3584,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * @author isidoro
  */
 bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
-{
+{return true;// [DCOP]
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
 	}
