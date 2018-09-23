@@ -289,7 +289,7 @@ void convoi_t::reserve_route()
  * @returns length of convoy minus last vehicle
  */
 uint32 convoi_t::move_to(uint16 const start_index)
-{
+{printf("\n convoi_t::move_to %d state=%s", self.get_id(), state_names[state]);
 	steps_driven = -1;
 	koord3d k = route.at(start_index);
 	grund_t* gr = welt->lookup(k);
@@ -322,7 +322,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 
 
 void convoi_t::finish_rd()
-{
+{printf("\n convoi_t::finish_rd %d state=%s", self.get_id(), state_names[state]);
 	if(schedule==NULL) {
 		if(  state!=INITIAL  ) {
 			grund_t *gr = welt->lookup(home_depot);
@@ -875,7 +875,7 @@ int convoi_t::get_vehicle_at_length(uint16 length)
 
 // moves all vehicles of a convoi
 sync_result convoi_t::sync_step(uint32 delta_t)
-{
+{printf("\n convoi_t::sync_step %d state=%s wait_lock=%d", self.get_id(), state_names[state], wait_lock);
 	// still have to wait before next action?
 	wait_lock -= delta_t;
 	if(wait_lock > 0) {
@@ -1001,7 +1001,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
  * @author Hanjsörg Malthaner
  */
 bool convoi_t::drive_to()
-{
+{printf("\n convoi_t::drive_to %d state=%s", self.get_id(), state_names[state]);
 	if(  anz_vehikel>0  ) {
 
 		// unreserve all tiles that are covered by the train but do not contain one of the wagons,
@@ -1170,7 +1170,7 @@ void convoi_t::suche_neue_route()
  * @author Hj. Malthaner
  */
 void convoi_t::step()
-{
+{printf("\n convoi_t::step %d state=%s", self.get_id(), state_names[state]);
 	if(  wait_lock > 0  ) {
 		return;
 	}
@@ -1464,7 +1464,7 @@ void convoi_t::new_month()
 
 
 void convoi_t::betrete_depot(depot_t *dep)
-{
+{printf("\n convoi_t::betrete_depot %d state=%s", self.get_id(), state_names[state]);
 	// first remove reservation, if train is still on track
 	unreserve_route();
 
@@ -1492,7 +1492,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 
 
 void convoi_t::start()
-{
+{printf("\n convoi_t::start %d state=%s", self.get_id(), state_names[state]);
 	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving
@@ -1562,7 +1562,7 @@ void convoi_t::start()
  * can be waypoint, depot or a stop
  * called from the first vehicle_t of a convoi */
 void convoi_t::ziel_erreicht()
-{
+{printf("\n convoi_t::ziel_erreicht %d state=%s", self.get_id(), state_names[state]);
 	const vehicle_t* v = fahr[0];
 	alte_richtung = v->get_direction();
 
@@ -1867,7 +1867,7 @@ schedule_t *convoi_t::create_schedule()
  * on all error we better use the normal starting procedure ...
  */
 bool convoi_t::can_go_alte_richtung()
-{
+{printf("\n convoi_t::can_go_alte_richtung %d state=%s", self.get_id(), state_names[state]);
 	// invalid route? nothing to test, must start new
 	if(route.empty()) {
 		return false;
@@ -1999,7 +1999,7 @@ bool convoi_t::can_go_alte_richtung()
 
 // put the convoi on its way
 void convoi_t::vorfahren()
-{
+{printf("\n convoi_t::vorfahren %d state=%s", self.get_id(), state_names[state]);
 	// Hajo: init speed settings
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
@@ -2824,7 +2824,7 @@ void convoi_t::calc_gewinn()
  * V.Meyer: minimum_loading is now stored in the object (not returned)
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
-{
+{printf("\n convoi_t::hat_gehalten %d state=%s", self.get_id(), state_names[state]);
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
 
 	// now find out station length
@@ -3809,7 +3809,7 @@ sint64 convoi_t::get_stat_converted(int month, int cost_type) const
 
 
 const char* convoi_t::send_to_depot(bool local)
-{
+{printf("\n convoi_t::send_to_depot %d state=%s", self.get_id(), state_names[state]);
 	// iterate over all depots and try to find shortest route
 	route_t *shortest_route = new route_t();
 	route_t *route = new route_t();

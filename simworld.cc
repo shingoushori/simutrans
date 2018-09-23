@@ -3464,7 +3464,7 @@ void karte_t::sync_list_t::clear()
 }
 
 void karte_t::sync_list_t::sync_step(uint32 delta_t)
-{
+{printf("\n - karte_t::sync_list_t::sync_step");
 	sync_step_running = true;
 	currently_deleting = NULL;
 
@@ -3496,7 +3496,7 @@ void karte_t::sync_list_t::sync_step(uint32 delta_t)
  * everything else is done here
  */
 void karte_t::sync_step(uint32 delta_t, bool do_sync_step, bool display )
-{
+{printf("\n - karte_t::sync_list_t::sync_step");
 	set_random_mode( SYNC_STEP_RANDOM );
 	if(do_sync_step) {
 		// only omitted, when called to display a new frame during fast forward
@@ -3948,7 +3948,7 @@ void karte_t::set_schedule_counter()
 
 
 void karte_t::step()
-{
+{printf("\n\n - karte_t::step");
 	DBG_DEBUG4("karte_t::step", "start step");
 	uint32 time = dr_time();
 

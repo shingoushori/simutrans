@@ -226,7 +226,7 @@ void vehicle_base_t::rotate90()
 
 
 void vehicle_base_t::leave_tile()
-{
+{printf("\n vehicle_base_t::leave_tile");
 	// first: release crossing
 	grund_t *gr = welt->lookup(get_pos());
 	if(  gr  &&  gr->ist_uebergang()  ) {
@@ -276,7 +276,7 @@ void vehicle_base_t::leave_tile()
 
 
 void vehicle_base_t::enter_tile(grund_t* gr)
-{
+{printf("\n vehicle_base_t::enter_tile");
 	if(!gr) {
 		dbg->error("vehicle_base_t::enter_tile()","'%s' new position (%i,%i,%i)!",get_name(), get_pos().x, get_pos().y, get_pos().z );
 		gr = welt->lookup_kartenboden(get_pos().get_2d());
