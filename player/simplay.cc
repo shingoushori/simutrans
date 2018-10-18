@@ -872,8 +872,8 @@ sint64 player_t::undo()
 						if(!aircraft->is_on_ground()) {
 							break;
 						}
-						// fall through !
 					}
+					/* FALLTHROUGH */
 					// all other are forbidden => no undo any more
 					default:
 						last_built.clear();
