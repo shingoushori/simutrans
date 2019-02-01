@@ -72,11 +72,11 @@ endif
 ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
-  ifeq ($(BACKEND),SDL2)
-    SOURCES += clipboard_s.cc
-	else
+  ifeq ($(BACKEND),sdl2)
+    SOURCES += clipboard_s2.cc
+  else
     SOURCES += clipboard_internal.cc
-	endif
+  endif
 endif
 
 LIBS += -lbz2 -lz
@@ -125,7 +125,13 @@ ifdef USE_FREETYPE
     ifneq ($(FREETYPE_CONFIG),)
       CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs --static)
+        # since static is not supported by slightly old freetype versions
+        FTF = $(shell $(FREETYPE_CONFIG) --libs --static)
+        ifneq ($(FTF),)
+          LDFLAGS += $(FTF)
+        else
+          LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+        endif
       else
         LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
       endif

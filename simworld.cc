@@ -384,7 +384,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
-				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
+				pl->kartenboden_setzen( new wasser_t(gr->get_pos()), true /* do not calc_image for water tiles */ );
 			}
 			else if(  gr->get_typ() == grund_t::wasser  &&  max_hgt_nocheck(k) > water_hgt  ) {
 				// water above ground => to ground
@@ -4559,11 +4559,11 @@ void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char
 {
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
-	bool save_temp = strstart( filename, "save/" );
-	const char *savename = save_temp ? "save/_temp.sve" : filename;
+	std::string savename = filename;
+	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
-	if(!file.wr_open( savename, savemode, env_t::objfilename.c_str(), version_str )) {
+	if(!file.wr_open( savename.c_str(), savemode, env_t::objfilename.c_str(), version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
@@ -4576,9 +4576,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 			create_win( new news_img(err_str), w_time_delete, magic_none);
 		}
 		else {
-			if(  save_temp  ) {
-				dr_rename( savename, filename );
-			}
+			dr_rename( savename.c_str(), filename );
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
@@ -4843,7 +4841,7 @@ void karte_t::switch_server( bool start_server, bool port_forwarding )
 		}
 		network_core_shutdown();
 		env_t::easy_server = 0;
-		
+
 		clear_random_mode( INTERACTIVE_RANDOM );
 		step_mode = NORMAL;
 		reset_timer();
@@ -6846,8 +6844,8 @@ void karte_t::announce_server(int status)
 	if(  env_t::server  &&  env_t::server_announce  ) {
 		// in easy_server mode, we assume the IP may change frequently and thus query it before each announce
 		cbuffer_t buf, altbuf;
-		if(  env_t::easy_server  &&  status<2  &&  atoi(env_t::server_dns.c_str())  &&  get_external_IP(buf,altbuf)  ) {
-			// if only numerical IP, then check if still current
+		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
+			// ipdate IP just in case
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}

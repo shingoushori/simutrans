@@ -574,13 +574,6 @@ void grund_t::take_obj_from(grund_t* other_gr)
 
 void grund_t::open_info_window()
 {
-	int old_count = win_get_open_count();
-	if(get_halt().is_bound()) {
-		get_halt()->open_info_window();
-		if(env_t::single_info  &&  old_count!=win_get_open_count()  ) {
-			return;
-		}
-	}
 	if(env_t::ground_info  ||  hat_wege()) {
 		create_win(new grund_info_t(this), w_info, (ptrdiff_t)this);
 	}
@@ -1091,7 +1084,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 					// finally overlay any water transition
 					if(  water_corners  ) {
 						if(  slope  ) {
-							display_alpha( ground_desc_t::get_water_tile(slope), ground_desc_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
+							display_alpha( ground_desc_t::get_water_tile(slope, wasser_t::stage), ground_desc_t::get_beach_tile( slope, water_corners ), ALPHA_RED, xpos, ypos, 0, 0, true, dirty CLIP_NUM_PAR );
 							if(  ground_desc_t::shore  ) {
 								// additional shore image
 								image_id shore = ground_desc_t::shore->get_image(slope,snow_transition<=0);
@@ -1666,7 +1659,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 					display_outline_proportional_rgb( new_xpos, ypos-(LINESPACE/2), pc+3, color_idx_to_rgb(COL_BLACK), text, dirty );
 					break;
 				case 2:
-					display_outline_proportional_rgb( 16+new_xpos, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
+					display_outline_proportional_rgb( new_xpos + LINESPACE + D_H_SPACE, ypos-(LINESPACE/2), color_idx_to_rgb(COL_YELLOW), color_idx_to_rgb(COL_BLACK), text, dirty );
 					display_ddd_box_clip_rgb( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
 					display_fillbox_wh_rgb( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
 					break;
