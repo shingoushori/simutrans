@@ -191,10 +191,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 {
 	obj_t::info( buf );
 
-	if(  desc->is_private_way()  ) {
-		buf.append( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
-	}
-	else {
+	if(  !desc->is_private_way()  ) {
 		buf.append(translator::translate("Roadsign"));
 		buf.append("\n");
 		if(desc->is_single_way()) {
@@ -206,8 +203,6 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
-			buf.append("\n");
-			buf.append("\n");
 		}
 	}
 }
@@ -472,9 +467,10 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 	}
 	else {
 		// change every ~32s
-		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
+		// Must not overflow if ticks_ns+ticks_ow=256
+		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % ((uint32)ticks_ns+(uint32)ticks_ow);
 
-		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
+		uint8 new_state = (ticks >= ticks_ns);
 		if(state!=new_state) {
 			state = new_state;
 			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
@@ -491,6 +487,11 @@ void roadsign_t::rotate90()
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
 		state = (state+1)&1;
+		if (ticks_offset >= ticks_ns) {
+			ticks_offset -= ticks_ns;
+		} else {
+			ticks_offset += ticks_ow;
+		}
 		uint8 temp = ticks_ns;
 		ticks_ns = ticks_ow;
 		ticks_ow = temp;

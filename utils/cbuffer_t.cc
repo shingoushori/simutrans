@@ -92,6 +92,12 @@ void cbuffer_t::append(double n,int decimals)
 	append(tmp);
 }
 
+void cbuffer_t::append_money(double money)
+{
+	char tmp[128];
+	money_to_string(tmp, money, true);
+	append(tmp);
+}
 
 const char* cbuffer_t::get_str() const
 {
@@ -259,7 +265,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 	if(  const char *c=strstr( fmt, "%1$" )  ) {
 		// but they are requested here ...
 		// our routine can only handle max. 9 parameters
-		char pos[6];
+		char pos[14];
 		static char format_string[256];
 		char *cfmt = format_string;
 		static char buffer[16000];	// the longest possible buffer ...

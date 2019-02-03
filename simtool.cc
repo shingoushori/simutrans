@@ -356,99 +356,67 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 
 /****************************************** now the actual tools **************************************/
-const char *tool_query_t::work( player_t *player, koord3d pos )
+const char *tool_query_t::work( player_t *, koord3d pos )
 {
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		DBG_MESSAGE("tool_query_t()","checking map square %s", pos.get_str());
+		// not single_info: show least important first
+		const bool reverse = !env_t::single_info  ||  is_ctrl_pressed();
 
-		if(  env_t::single_info  ) {
+		// iterate through different stages of importance
+		const uint8 max_stages = 4;
+		for(uint8 stage = 0; stage<max_stages; stage++) {
 
 			int old_count = win_get_open_count();
 
-			if(  is_ctrl_pressed()  ) {
-				// reverse order
-				for(int n=0;  n<gr->get_top();  n++  ) {
-					obj_t *obj = gr->obj_bei(n);
-					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
-						DBG_MESSAGE("tool_query_t()", "index %d", n);
-						obj->show_info();
-						// did some new window open?
-						if(old_count!=win_get_open_count()) {
-							return NULL;
+			switch (reverse ? max_stages-1-stage: stage) {
+				case 0: { // halts
+					if(  gr->get_halt().is_bound()  ) {
+						gr->get_halt()->open_info_window();
+					}
+					break;
+				}
+				case 1: // labels
+					if(  gr->get_flag(grund_t::marked)  ) {
+						label_t *lb = gr->find<label_t>();
+						if(  lb  ) {
+							lb->show_info();
+							if(  old_count < win_get_open_count()  ) {
+								return NULL;
+							}
 						}
 					}
-				}
+					break;
+				case 2: { // objects
+					convoihandle_t cnv;
+					for (size_t n = gr->get_top(); n-- != 0;) {
+						obj_t *obj = gr->obj_bei(reverse ? gr->get_top()-1-n : n);
 
-				if(  gr->get_flag(grund_t::marked)  ) {
-					label_t *lb = gr->find<label_t>();
-					if(  lb  ) {
-						lb->show_info();
-						if(  old_count!=win_get_open_count()  ) {
-							return NULL;
+						if (vehicle_t* veh = dynamic_cast<vehicle_t*>(obj)) {
+							if (veh->get_convoi()->self == cnv) {
+								continue; // do not try to open the same window twice, does not work so great with env_t::second_open_closes_win
+							}
+							cnv = veh->get_convoi()->self;
+						}
+						if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
+							DBG_MESSAGE("tool_query_t()", "index %u", (unsigned)n);
+							obj->show_info();
+							// did some new window open?
+							if(env_t::single_info  &&  old_count < win_get_open_count()) {
+								return NULL;
+							}
+							old_count = win_get_open_count(); // click may have closed a window, open a new one if possible
 						}
 					}
+					break;
 				}
-
-				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->open_info_window();
-					if(  old_count!=win_get_open_count()  ) {
-						return NULL;
-					}
-				}
-
-			}
-			else {
-
-				// show halt and labels first ...
-				if(  gr->get_halt().is_bound()  ) {
-					gr->get_halt()->open_info_window();
-					if(  old_count!=win_get_open_count()  ) {
-						return NULL;
-					}
-				}
-				if(  gr->get_flag(grund_t::marked)  ) {
-					label_t *lb = gr->find<label_t>();
-					if(  lb  ) {
-						lb->show_info();
-						if(  old_count!=win_get_open_count()  ) {
-							return NULL;
-						}
-					}
-				}
-
-				for (size_t n = gr->get_top(); n-- != 0;) {
-					obj_t *obj = gr->obj_bei(n);
-					if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar && obj->get_typ()!=obj_t::label  ) {
-						DBG_MESSAGE("tool_query_t()", "index %u", (unsigned)n);
-						obj->show_info();
-						// did some new window open?
-						if(old_count!=win_get_open_count()) {
-							return NULL;
-						}
-					}
-				}
+				case 3:
+				default: // ground
+					gr->open_info_window();
+					break;
 			}
 
-			// no window yet opened -> try ground info
-			gr->open_info_window();
-		}
-		else {
-			// lowest (less interesting) first
-			gr->open_info_window();
-			for(int n=0; n<gr->get_top();  n++  ) {
-				obj_t *obj = gr->obj_bei(n);
-				if(  obj && obj->get_typ()!=obj_t::wayobj && obj->get_typ()!=obj_t::pillar  ) {
-					obj->show_info();
-				}
-			}
-		}
-
-		if(gr->get_depot()  &&  gr->get_depot()->get_owner()==player) {
-			int old_count = win_get_open_count();
-			gr->get_depot()->show_info();
-			// did some new window open?
-			if(env_t::single_info  &&  old_count!=win_get_open_count()) {
+			if(  env_t::single_info  &&  old_count < win_get_open_count()  ) {
 				return NULL;
 			}
 		}
@@ -3360,8 +3328,17 @@ bool tool_build_wayobj_t::init( player_t *player )
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	waytype_t waytype = wt;
-	if (waytype == any_wt) {
+	if(  waytype == any_wt  ) {
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
+	}
+	// special treatment for deports, since track electrication cannot "drive" into tram depot
+	if(  waytype == track_wt  ) {
+		if(  depot_t  *dp = welt->lookup(start)->get_depot()  ) {
+			waytype = dp->get_waytype();
+		}
+		else if(  depot_t  *dp = welt->lookup(to)->get_depot()  ) {
+			waytype = dp->get_waytype();
+		}
 	}
 	// get a default vehikel
 	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
@@ -5890,9 +5867,9 @@ const char *tool_lock_game_t::work( player_t *, koord3d )
 	if(  !welt->get_public_player()->is_locked() ) {
 		return "In order to lock the game, you have to protect the public player by password!";
 	}
-	welt->get_settings().set_allow_player_change(false);
 	destroy_all_win( true );
 	welt->switch_active_player( 0, true );
+	welt->get_settings().set_allow_player_change(false);
 	welt->set_tool( general_tool[TOOL_QUERY], welt->get_player(0) );
 	return NULL;
 }
