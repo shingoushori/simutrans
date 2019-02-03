@@ -85,7 +85,7 @@ void haltestelle_t::reset_routing()
 
 
 void haltestelle_t::step_all()
-{
+{printf("\nhaltestelle_t::step_all");
 	// tell all stale convois to reroute their goods
 	if(  !stale_convois.empty()  ) {
 		convoihandle_t cnv = stale_convois.pop_back();
@@ -506,7 +506,7 @@ const char* haltestelle_t::get_name() const
  * @author Hj. Malthaner
  */
 void haltestelle_t::set_name(const char *new_name)
-{
+{printf("\nhaltestelle_t::set_name");printf(" %s",new_name);
 	grund_t *gr = welt->lookup(get_basis_pos3d());
 	if(gr) {
 		if(gr->get_flag(grund_t::has_text)) {
@@ -874,7 +874,8 @@ void haltestelle_t::request_loading( convoihandle_t cnv )
 
 
 bool haltestelle_t::step(uint8 what, sint16 &units_remaining)
-{
+{printf("\nhaltestelle_t::step");
+printf(" %s",get_name());
 	switch(what) {
 		case RECONNECTING:
 			units_remaining -= (rebuild_connections()/256)+2;
@@ -2697,7 +2698,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 void haltestelle_t::finish_rd()
-{
+{printf("\nhaltestelle_t::finish_rd");
 	verbinde_fabriken();
 
 	stale_convois.clear();
