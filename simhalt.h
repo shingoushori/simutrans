@@ -809,6 +809,8 @@ public:
 	 */
 	static void init_markers();
 
+	void name_header_extension();
+
 };
 
 ENUM_BITSET(haltestelle_t::stationtyp)

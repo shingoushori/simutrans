@@ -530,6 +530,7 @@ void haltestelle_t::set_name(const char *new_name)
 		if(  info_frame  ) {
 			info_frame->set_name( get_name() );
 		}
+name_header_extension();
 	}
 }
 
@@ -2768,6 +2769,7 @@ void haltestelle_t::finish_rd()
 		}
 		all_names.set( current_name, self );
 	}
+name_header_extension();
 	recalc_status();
 	reconnect_counter = welt->get_schedule_counter()-1;
 }
@@ -3343,4 +3345,22 @@ void haltestelle_t::release_factory_links()
 		f->unlink_halt(self);
 	}
 	fab_list.clear();
+}
+
+void haltestelle_t::name_header_extension()
+{
+const char* name = get_name();
+printf(" %s",name);
+if(strlen(name) > 5) {
+	char nameheader[6];
+	tstrncpy(nameheader,name,6);
+printf(" %s",nameheader);
+	if(strcmp(nameheader,"[信]")==0
+	 ||strcmp(nameheader,"[留]")==0
+	 ||strcmp(nameheader,"[操]")==0
+	 ||strcmp(nameheader,"[引]")==0){
+		enables=NOT_ENABLED;
+	}
+	else{recalc_station_type();}
+}
 }
