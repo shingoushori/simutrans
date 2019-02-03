@@ -117,7 +117,7 @@ bool route_t::node_in_use=false;
  * @author prissi
  */
 bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
-{
+{printf("\n route_t::find_route start:(%d,%d)", start.x, start.y);
 	bool ok = false;
 
 	// check for existing koordinates
@@ -287,7 +287,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 
 bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
-{
+{printf("\n route_t::intern_calc_route ziel:(%d,%d)", ziel.x, ziel.y);
 	bool ok = false;
 
 	// check for existing koordinates

@@ -291,7 +291,7 @@ void vehicle_base_t::enter_tile(grund_t* gr)
  * @return the distance actually traveled
  */
 uint32 vehicle_base_t::do_drive(uint32 distance)
-{
+{printf("\n vehicle_base_t::do_drive");
 
 	uint32 steps_to_do = distance >> YARDS_PER_VEHICLE_STEP_SHIFT;
 
@@ -984,13 +984,13 @@ vehicle_t::vehicle_t() :
 
 
 bool vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
-{
+{printf("\n vehicle_t::calc_route ziel:(%d,%d)", ziel.x, ziel.y);
 	return route->calc_route(welt, start, ziel, this, max_speed, 0 );
 }
 
 
 grund_t* vehicle_t::hop_check()
-{
+{printf("\n vehicle_t::hop_check");
 	// the leading vehicle will do all the checks
 	if(leading) {
 		if(check_for_finish) {
@@ -1060,7 +1060,7 @@ grund_t* vehicle_t::hop_check()
 
 
 bool vehicle_t::can_enter_tile(sint32 &restart_speed, uint8 second_check_count)
-{
+{printf("\n vehicle_t::can_enter_tile pos_next:(%d,%d)", pos_next.x, pos_next.y);
 	grund_t *gr = welt->lookup( pos_next );
 	if(  gr  ) {
 		return can_enter_tile( gr, restart_speed, second_check_count );
@@ -2457,7 +2457,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 
 // need to reset halt reservation (if there was one)
 bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
-{
+{printf("\n rail_vehicle_t::calc_route start:(%d,%d)", start.x, start.y);
 	if(leading  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
 		uint16 dummy;
@@ -2471,7 +2471,7 @@ bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, r
 
 
 bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
-{
+{printf("\n rail_vehicle_t::check_next_tile (%d,%d)", bd->get_pos().x, bd->get_pos().y);
 	schiene_t const* const sch = obj_cast<schiene_t>(bd->get_weg(get_waytype()));
 	if(  !sch  ) {
 		return false;
@@ -2555,7 +2555,7 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 
 // this routine is called by find_route, to determined if we reached a destination
 bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr) const
-{
+{printf("\n rail_vehicle_t::is_target (%d,%d)", gr->get_pos().x, gr->get_pos().y);
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
 	if(  sch1->can_reserve(cnv->self)  ) {
@@ -2667,7 +2667,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 
 
 bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_block, sint32 &restart_speed)
-{
+{printf("\n rail_vehicle_t::is_choose_signal_clear");
 	bool choose_ok = false;
 	target_halt = halthandle_t();
 
@@ -2726,7 +2726,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		}
 	}
 
-skip_choose:
+skip_choose:printf("\n rail_vehicle_t::is_choose_signal_clear skip_choose");
 	if(  !choose_ok  ) {
 		// just act as normal signal
 		if(  block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 0, true, false )  ) {
@@ -2844,7 +2844,7 @@ bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, 
 
 
 bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
-{
+{printf("\n rail_vehicle_t::is_signal_clear");
 	// called, when there is a signal; will call other signal routines if needed
 	grund_t *gr_next_block = welt->lookup(cnv->get_route()->at(next_block));
 	signal_t *sig = gr_next_block->find<signal_t>();
@@ -2896,7 +2896,7 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 
 
 bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
-{
+{printf("\n rail_vehicle_t::can_enter_tile (%d,%d)", gr->get_pos().x, gr->get_pos().y);
 	assert(leading);
 	uint16 next_signal, next_crossing;
 	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS  ) {
@@ -3016,7 +3016,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
  * @author prissi
  */
 bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve  ) const
-{
+{printf("\n rail_vehicle_t::block_reserver");
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
 	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosesignals

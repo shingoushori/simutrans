@@ -945,7 +945,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			break;	// LEAVING_DEPOT
 
 		case DRIVING:
-			{
+			{printf("\n - DRIVING");
 				calc_acceleration(delta_t);
 
 				// now actually move the units
@@ -1502,13 +1502,13 @@ void convoi_t::start()
 		else {
 			home_depot = route.front();
 			fahr[0]->set_pos( home_depot );
-		}
+		}printf("\n - put the convoi on the depot ground, to get automatic rotation");
 		// put the convoi on the depot ground, to get automatic rotation
 		// (vorfahren() will remove it anyway again.)
 		grund_t *gr = welt->lookup( home_depot );
 		assert(gr);
 		gr->obj_add( fahr[0] );
-
+printf("\n - put into sync list");
 		// put into sync list
 		welt->sync.add(this);
 
@@ -1555,7 +1555,7 @@ void convoi_t::start()
 	else {
 		dbg->warning("convoi_t::start()","called with state=%s\n",state_names[state]);
 	}
-}
+	printf("\n - func end\n");}
 
 
 /* called, when at a destination
@@ -1592,6 +1592,7 @@ void convoi_t::ziel_erreicht()
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
 			arrived_time = welt->get_ticks();
+printf("\n id : %d anz_vehikel %d  convoys : %d", self.get_id(), anz_vehikel,  welt->convoys().get_count());
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -3479,7 +3480,7 @@ void convoi_t::unregister_stops()
 // set next stop before breaking will occur (or route search etc.)
 // currently only used for tracks
 void convoi_t::set_next_stop_index(uint16 n)
-{
+{printf("\nconvoi_t::set_next_stop_index %d state=%s\n", self.get_id(), state_names[state]);
 	// stop at station or signals, not at waypoints
 	if(  n==INVALID_INDEX  ) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
@@ -3584,7 +3585,7 @@ void convoi_t::set_withdraw(bool new_withdraw)
  * @author isidoro
  */
 bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other)
-{
+{printf("\nconvoi_t::can_overtake %d state=%s\n", self.get_id(), state_names[state]);
 	if(fahr[0]->get_waytype()!=road_wt) {
 		return false;
 	}

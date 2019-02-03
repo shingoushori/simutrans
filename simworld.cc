@@ -3438,7 +3438,7 @@ stadt_t *karte_t::find_nearest_city(const koord k) const
 // -------- Verwaltung von synchronen Objekten ------------------
 
 void karte_t::sync_list_t::add(sync_steppable *obj)
-{
+{printf("\n karte_t::sync_list_t::add");
 	assert(!sync_step_running);
 	list.append(obj);
 }
@@ -4054,7 +4054,7 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-	DBG_DEBUG4("karte_t::step", "step convois");
+	printf("\n - karte_t::step step convois convoi_array.get_count() : %d\n",convoi_array.get_count());DBG_DEBUG4("karte_t::step", "step convois");
 	// since convois will be deleted during stepping, we need to step backwards
 	for (size_t i = convoi_array.get_count(); i-- != 0;) {
 		convoihandle_t cnv = convoi_array[i];
