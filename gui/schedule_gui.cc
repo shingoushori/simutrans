@@ -355,6 +355,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&lb_wait);
 
 		add_component(&wait_load);
+		wait_load.add_listener(this);
 
 		wait_load.new_component<gui_waiting_time_item_t>(0);
 		for(sint8 w = 7; w<=16; w++) {
@@ -450,20 +451,23 @@ void schedule_gui_t::update_selection()
 			numimp_load.enable();
 			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 
+			sint8 wait = 0;
 			if(  schedule->entries[current_stop].minimum_loading>0  ) {
 				lb_wait.set_color( SYSCOL_TEXT );
 				wait_load.enable();
 
-				sint8 wait = schedule->entries[current_stop].waiting_time_shift;
-				for(int i=0; i<wait_load.count_elements(); i++) {
-					if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
-						if (item->get_wait_shift() == wait) {
-							wait_load.set_selection(i);
-							break;
-						}
+				wait = schedule->entries[current_stop].waiting_time_shift;
+			}
+
+			for(int i=0; i<wait_load.count_elements(); i++) {
+				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
+					if (item->get_wait_shift() == wait) {
+						wait_load.set_selection(i);
+						break;
 					}
 				}
 			}
+
 		}
 		else {
 			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );

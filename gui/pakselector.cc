@@ -122,6 +122,4 @@ void pakselector_t::fill_list()
 		// empty path as more than one pakset is present, user has to choose
 		env_t::objfilename = "";
 	}
-
-	reset_min_windowsize();
 }

@@ -52,7 +52,6 @@ private:
 	char fabname[256];
 	gui_textinput_t input;
 
-	gui_scrollpane_t scroll_info;
 	gui_textarea_t prod, txt;
 	gui_colorbox_t indicator_color;
 
@@ -65,6 +64,8 @@ private:
 
 	gui_aligned_container_t all_suppliers, all_consumers, all_stops, all_cities;
 	uint32 old_suppliers_count, old_consumers_count, old_stops_count, old_cities_count;
+
+	gui_scrollpane_t scroll_info;
 
 	void rename_factory();
 public:
@@ -82,13 +83,13 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_help_filename() const {return "industry_info.txt";}
+	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
-	virtual bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool) { return fab->get_pos(); }
+	koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
 
-	virtual bool is_weltpos();
+	bool is_weltpos() OVERRIDE;
 
 	/**
 	* Draw new component. The values to be passed refer to the window
@@ -96,16 +97,16 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	virtual void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// rotated map need new info ...
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_factory_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_factory_info; }
 };
 
 #endif
