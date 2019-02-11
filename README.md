@@ -15,5 +15,15 @@ by shingoushori
 #### 実装箇所
 * simhalt.h/cc
 
+### Extend "Waiting For Clearance" Tooltip
+#### 機能
+* 車両の状態に current_entry の座標を追加
+    * "Waiting For Clearance" : 停止
+    * "Stucked" : 停滞中
+#### 実装箇所
+* vehicle/simvehicle.cc
+#### 本家Forum
+* [Extend "Waiting For Clearance" Tooltip](https://forum.simutrans.com/index.php/topic,18770.0.html)
+
 ## debug
 
