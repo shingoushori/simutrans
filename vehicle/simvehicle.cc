@@ -1736,7 +1736,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
 				if(  state>=2  ) {
-					tstrncpy( tooltip_text, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
+					char tooltip_text_source[1024];
+					tstrncpy( tooltip_text_source, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
+					schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
+					sprintf( tooltip_text, "%s (%i,%i,%i)", tooltip_text_source, current_entry.pos.x, current_entry.pos.y, current_entry.pos.z );
 					color = color_idx_to_rgb(COL_YELLOW);
 				}
 				break;
@@ -1779,8 +1782,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				tstrncpy( tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text) );
-				color = color_idx_to_rgb(COL_ORANGE);
+				{
+					char tooltip_text_source[1024];
+					tstrncpy( tooltip_text_source, translator::translate("clf_chk_stucked"), lengthof(tooltip_text) );
+					schedule_entry_t current_entry = cnv->get_schedule()->get_current_entry();
+					sprintf( tooltip_text, "%s (%i,%i,%i)", tooltip_text_source, current_entry.pos.x, current_entry.pos.y, current_entry.pos.z );
+					color = color_idx_to_rgb(COL_ORANGE);
+				}
 				break;
 
 			case convoi_t::NO_ROUTE:
