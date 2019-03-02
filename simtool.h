@@ -726,7 +726,24 @@ public:
 	bool init( player_t *player ) OVERRIDE {
 		if(  !env_t::networkmode  ||  player->is_public_service()  ) {
 			// in networkmode only for public player
-			welt->change_time_multiplier( atoi(default_param) );
+			
+			// [mod : shingoushori] change_time_multiplier_xt 1/6
+			// This modify is assumed to be written in menuconf.tab as shown below, if used.
+			// # toolbar[0][31]=simple_tool[7],,.,+1
+			// # toolbar[0][32]=simple_tool[7],,COMMA,-1
+			// toolbar[0][31]=simple_tool[7],,.,^+1
+			// toolbar[0][32]=simple_tool[7],,COMMA,^-1
+			int factor = atoi(default_param);
+			if (factor != 0) {
+				welt->change_time_multiplier( factor );
+			} else {
+				if (strlen(default_param) > 0){
+					if (default_param[0] == '^'){
+						char *c_xt = (char*)&default_param[1];
+						welt->change_time_multiplier_xt( atoi(c_xt) );
+					}
+				}
+			}
 		}
 		return false;
 	}

@@ -2006,6 +2006,8 @@ karte_t::karte_t() :
 	network_frame_count = 0;
 	sync_steps = 0;
 	sync_steps_barrier = sync_steps;
+	// [mod : shingoushori] change_time_multiplier_xt 2/6
+	step_fast_forward = 100;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
@@ -6199,6 +6201,54 @@ void karte_t::change_time_multiplier(sint32 delta)
 }
 
 
+// [mod : shingoushori] change_time_multiplier_xt 3/6
+void karte_t::change_time_multiplier_xt(sint32 delta)
+{
+	if(step_mode==FAST_FORWARD) {
+		uint32 step_fast_forward_plan = step_fast_forward;
+		if(delta<0) {
+			delta = sint32(pow(2,-delta));
+			step_fast_forward_plan /= delta;
+		}
+		else {
+			delta = sint32(pow(2,delta));
+			step_fast_forward_plan *= delta;
+		}
+		if(step_fast_forward_plan<=10000) {
+			step_fast_forward = step_fast_forward_plan; 
+		}
+		else {
+			step_fast_forward = 10000;
+		}
+		if(step_fast_forward<100) {
+			step_fast_forward = 100;
+		}
+
+		return;
+	}
+	uint32 time_multiplier_plan = time_multiplier;
+	if(delta<0) {
+		delta = sint32(pow(2,-delta));
+		time_multiplier_plan /= delta;
+	}
+	else {
+		delta = sint32(pow(2,delta));
+		time_multiplier_plan *= delta;
+	}
+	if(time_multiplier_plan<=3200) {
+		time_multiplier = time_multiplier_plan;
+	}
+	if(time_multiplier<=0) {
+		time_multiplier = 1;
+	}
+
+	if(step_mode!=NORMAL) {
+		step_mode = NORMAL;
+		reset_timer();
+	}
+}
+
+
 void karte_t::set_pause(bool p)
 {
 	bool pause = step_mode&PAUSE_FLAG;
@@ -6733,7 +6783,8 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
-					sync_step( 100, true, false );
+					// [mod : shingoushori] change_time_multiplier_xt 4/6
+					sync_step( step_fast_forward, true, false );
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );

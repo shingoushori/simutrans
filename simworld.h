@@ -492,6 +492,10 @@ private:
 
 	// The maximum sync_steps that a client can safely advance to.
 	uint32 sync_steps_barrier;
+
+ 	// [mod : shingoushori] change_time_multiplier_xt 5/6
+	uint32 step_fast_forward;
+	
 #define LAST_CHECKLISTS_COUNT 64
 	/// @note variable used in interactive()
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
@@ -1027,6 +1031,8 @@ public:
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
+	// [mod : shingoushori] change_time_multiplier_xt 6/6
+	void change_time_multiplier_xt( sint32 delta );
 
 	/**
 	 * @return 0=winter, 1=spring, 2=summer, 3=autumn
