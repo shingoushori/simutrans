@@ -25,5 +25,26 @@ by shingoushori
 #### 本家Forum
 * [Extend "Waiting For Clearance" Tooltip](https://forum.simutrans.com/index.php/topic,18770.0.html)
 
+### EXTEND TOOL_CHANGE_GAME_SPEED, LOGARITHMIC CONTROL 
+#### 機能
+* ゲームスピードを対数スケールで調整
+    * menuconf.tab を次のように書き換え
+```
+			// # toolbar[0][31]=simple_tool[7],,.,+1
+			// # toolbar[0][32]=simple_tool[7],,COMMA,-1
+			// toolbar[0][31]=simple_tool[7],,.,^+1
+			// toolbar[0][32]=simple_tool[7],,COMMA,^-1
+```
+#### 実装箇所
+* simtool.h
+* simworld.cc
+* simworld.h
+#### 本家Forum
+* [EXTEND TOOL_CHANGE_GAME_SPEED, LOGARITHMIC CONTROL](https://forum.simutrans.com/index.php/topic,18814.html)
+#### 関連するコミット
+##### [Branch:master](https://github.com/shingoushori/simutrans/tree/master)
+* [change_time_multiplier_xt](https://github.com/shingoushori/simutrans/commit/57239dcc20519f4b011de0b0632a2b65e7067fe0)
+* [minor change ... change_time_multiplier_xt ... msg -> stderr](https://github.com/shingoushori/simutrans/commit/6cb1782c60fb6c40225b0ed360ffcfb9a1c020c5)
+
 ## debug
 
