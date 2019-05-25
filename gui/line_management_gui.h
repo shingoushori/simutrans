@@ -14,14 +14,14 @@ class loadsave_t;
 class line_management_gui_t : public schedule_gui_t
 {
 public:
-	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player = NULL);
+	line_management_gui_t(linehandle_t line = linehandle_t(), player_t* player_ = NULL);
 	virtual ~line_management_gui_t();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// stuff for UI saving
-	virtual void rdwr( loadsave_t *file );
-	virtual uint32 get_rdwr_id() { return magic_line_schedule_rdwr_dummy; }
+	void rdwr( loadsave_t *file ) OVERRIDE;
+	uint32 get_rdwr_id() OVERRIDE { return magic_line_schedule_rdwr_dummy; }
 
 
 private:

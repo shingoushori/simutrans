@@ -35,6 +35,11 @@ private:
 		inp_number_of_towns,
 		inp_town_size;
 
+	/* 
+	 * Label to display current map seed number.
+	 */
+	gui_label_buf_t	map_number_label;
+
 	button_t
 		start_button;
 
@@ -62,7 +67,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "enlarge_map.txt";}
+	const char * get_help_filename() const OVERRIDE { return "enlarge_map.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -70,7 +75,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 };
 
 #endif

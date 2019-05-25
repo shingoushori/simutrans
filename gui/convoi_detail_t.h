@@ -31,8 +31,8 @@ public:
 
 private:
 
-	gui_scrollpane_t scrolly;
 	gui_aligned_container_t container;
+	gui_scrollpane_t scrolly;
 
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
 
@@ -49,7 +49,7 @@ public:
 	 */
 	void init(convoihandle_t cnv);
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

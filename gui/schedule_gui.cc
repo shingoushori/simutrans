@@ -77,7 +77,7 @@ public:
 		stop.update();
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		update_label();
 		if (is_current) {
@@ -93,7 +93,7 @@ public:
 		stop.set_color(yesno ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT);
 	}
 
-	bool infowin_event(const event_t *ev)
+	bool infowin_event(const event_t *ev) OVERRIDE
 	{
 		if( ev->ev_class == EVENT_CLICK ) {
 			if(  IS_RIGHTCLICK(ev)  ||  ev->mx < stop.get_pos().x) {
@@ -225,13 +225,13 @@ public:
 		}
 		highlight_schedule(true);
 	}
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		update_schedule();
 
 		gui_aligned_container_t::draw(offset);
 	}
-	bool action_triggered(gui_action_creator_t *, value_t v)
+	bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE
 	{
 		// has to be one of the entries
 		call_listeners(v);
@@ -355,6 +355,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&lb_wait);
 
 		add_component(&wait_load);
+		wait_load.add_listener(this);
 
 		wait_load.new_component<gui_waiting_time_item_t>(0);
 		for(sint8 w = 7; w<=16; w++) {
@@ -450,20 +451,23 @@ void schedule_gui_t::update_selection()
 			numimp_load.enable();
 			numimp_load.set_value( schedule->entries[current_stop].minimum_loading );
 
+			sint8 wait = 0;
 			if(  schedule->entries[current_stop].minimum_loading>0  ) {
 				lb_wait.set_color( SYSCOL_TEXT );
 				wait_load.enable();
 
-				sint8 wait = schedule->entries[current_stop].waiting_time_shift;
-				for(int i=0; i<wait_load.count_elements(); i++) {
-					if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
-						if (item->get_wait_shift() == wait) {
-							wait_load.set_selection(i);
-							break;
-						}
+				wait = schedule->entries[current_stop].waiting_time_shift;
+			}
+
+			for(int i=0; i<wait_load.count_elements(); i++) {
+				if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(i) ) ) {
+					if (item->get_wait_shift() == wait) {
+						wait_load.set_selection(i);
+						break;
 					}
 				}
 			}
+
 		}
 		else {
 			lb_load.set_color( SYSCOL_BUTTON_TEXT_DISABLED );
@@ -539,50 +543,50 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 }
 
 
-bool schedule_gui_t::action_triggered( gui_action_creator_t *komp, value_t p)
+bool schedule_gui_t::action_triggered( gui_action_creator_t *comp, value_t p)
 {
-DBG_MESSAGE("schedule_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
+DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_selector);
 
-	if(komp == &bt_add) {
+	if(comp == &bt_add) {
 		mode = adding;
 		bt_add.pressed = true;
 		bt_insert.pressed = false;
 		bt_remove.pressed = false;
 		update_tool( true );
 	}
-	else if(komp == &bt_insert) {
+	else if(comp == &bt_insert) {
 		mode = inserting;
 		bt_add.pressed = false;
 		bt_insert.pressed = true;
 		bt_remove.pressed = false;
 		update_tool( true );
 	}
-	else if(komp == &bt_remove) {
+	else if(comp == &bt_remove) {
 		mode = removing;
 		bt_add.pressed = false;
 		bt_insert.pressed = false;
 		bt_remove.pressed = true;
 		update_tool( false );
 	}
-	else if(komp == &numimp_load) {
+	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
 			schedule->entries[schedule->get_current_stop()].minimum_loading = (uint8)p.i;
 			update_selection();
 		}
 	}
-	else if(komp == &wait_load) {
+	else if(comp == &wait_load) {
 		if(!schedule->empty()) {
-			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_element(wait_load.get_selection()) ) ) {
+			if (gui_waiting_time_item_t *item = dynamic_cast<gui_waiting_time_item_t*>( wait_load.get_selected_item())) {
 				schedule->entries[schedule->get_current_stop()].waiting_time_shift = item->get_wait_shift();
 
 				update_selection();
 			}
 		}
 	}
-	else if(komp == &bt_return) {
+	else if(comp == &bt_return) {
 		schedule->add_return_way();
 	}
-	else if(komp == &line_selector) {
+	else if(comp == &line_selector) {
 		uint32 selection = p.i;
 		if(  line_scrollitem_t *li = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection))  ) {
 			new_line = li->get_line();
@@ -596,7 +600,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			line_selector.set_selection( 0 );
 		}
 	}
-	else if(komp == &bt_promote_to_line) {
+	else if(comp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
@@ -607,7 +611,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
-	else if (komp == stats) {
+	else if (comp == stats) {
 		// click on one of the schedule entries
 		const int line = p.i;
 

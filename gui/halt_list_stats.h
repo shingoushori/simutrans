@@ -9,7 +9,7 @@
 #ifndef halt_list_stats_h
 #define halt_list_stats_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 
 #include "components/gui_aligned_container.h"
 #include "components/gui_colorbox.h"
@@ -48,7 +48,7 @@ public:
 
 	const char* get_text() const OVERRIDE;
 
-	virtual bool is_valid() const OVERRIDE { return halt.is_bound(); }
+	bool is_valid() const OVERRIDE { return halt.is_bound(); }
 
 	halthandle_t get_halt() const { return halt; }
 

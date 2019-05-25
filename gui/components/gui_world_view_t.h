@@ -8,7 +8,7 @@
 #ifndef world_view_t_h
 #define world_view_t_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
@@ -91,9 +91,9 @@ public:
 
 
 
-	scr_size get_min_size() const { return min_size; }
+	scr_size get_min_size() const OVERRIDE { return min_size; }
 
-	scr_size get_max_size() const { return min_size; }
+	scr_size get_max_size() const OVERRIDE { return min_size; }
 };
 
 #endif

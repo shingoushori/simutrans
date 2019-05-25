@@ -8,7 +8,7 @@
 #ifndef message_stats_t_h
 #define message_stats_t_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../simmesg.h"
 #include "../tpl/slist_tpl.h"
 
@@ -50,14 +50,14 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 
-	scr_size get_max_size() const {
+	scr_size get_max_size() const OVERRIDE {
 		return get_min_size();
 	}
 
-	scr_size get_min_size() const {
+	scr_size get_min_size() const OVERRIDE {
 		return min_size;
 	}
 

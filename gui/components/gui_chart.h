@@ -7,7 +7,7 @@
 #define gui_chart_h
 
 #include "../../simtypes.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
 // CURVE TYPES
@@ -34,7 +34,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

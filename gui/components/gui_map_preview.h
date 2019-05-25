@@ -10,7 +10,7 @@
 #ifndef gui_gui_map_preview_h
 #define gui_gui_map_preview_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../../display/simgraph.h"
 #include "../../tpl/array2d_tpl.h"
@@ -42,7 +42,7 @@ class gui_map_preview_t : public gui_component_t
 		 * Draws the component.
 		 * @author Max Kielland, (Hj. Malthaner)
 		 */
-		virtual void draw(scr_coord offset) {
+		void draw(scr_coord offset) OVERRIDE {
 			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 
 			if(map_data) {

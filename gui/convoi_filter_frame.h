@@ -114,8 +114,8 @@ private:
 	button_t ware_keine;
 	button_t ware_invers;
 
-	gui_scrollpane_t ware_scrolly;
 	gui_aligned_container_t ware_cont;
+	gui_scrollpane_t ware_scrolly;
 
 public:
 	void sort_list();
@@ -130,14 +130,14 @@ public:
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 */
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_help_filename() const {return "convoi_filter.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "convoi_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

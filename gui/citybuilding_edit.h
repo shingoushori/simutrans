@@ -8,7 +8,6 @@
 #include "extend_edit.h"
 
 #include "components/gui_building.h"
-#include "components/gui_combobox.h"
 #include "../utils/cbuffer_t.h"
 
 class building_desc_t;
@@ -22,7 +21,6 @@ private:
 	static cbuffer_t param_str;
 
 	const building_desc_t *desc;
-	uint8 rotation;
 
 	vector_tpl<const building_desc_t *>building_list;
 
@@ -30,11 +28,9 @@ private:
 	button_t bt_com;
 	button_t bt_ind;
 
-	gui_combobox_t cb_rotation;
+	void fill_list( bool translate ) OVERRIDE;
 
-	void fill_list( bool translate );
-
-	virtual void change_item_info( sint32 i );
+	void change_item_info( sint32 i ) OVERRIDE;
 
 public:
 	citybuilding_edit_frame_t(player_t* player);
@@ -51,7 +47,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_help_filename() const { return "citybuilding_build.txt"; }
+	const char* get_help_filename() const OVERRIDE { return "citybuilding_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
