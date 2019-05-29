@@ -1058,7 +1058,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		// at least a pixel away from the border?
 		if(  pos.z < water_hgt  &&  !gr1->ist_tunnel()  ) {
-			return "Maximum tile height difference reached.";
+			// [DCOP] //return "Maximum tile height difference reached.";
 		}
 
 		if(  new_slope==RESTORE_SLOPE  &&  !(gr1->get_typ()==grund_t::boden  ||  gr1->get_typ()==grund_t::wasser)  ) {
@@ -1123,7 +1123,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					new_slope = slope_type( ribi_t::backward(ribis) );
 				}
 				else if(  gr1->get_weg_hang() != slope_type( ribi_t::backward(ribis) )  ) {
-					return "Maximum tile height difference reached.";
+					// [DCOP] //return "Maximum tile height difference reached.";
 				}
 			}
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
@@ -1160,7 +1160,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				else {
-					return "Maximum tile height difference reached.";
+					// [DCOP] //return "Maximum tile height difference reached.";
 				}
 			}
 		}
@@ -1258,7 +1258,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					const sint16 gr_neighbour_hgt=gr_neighbour->get_hoehe() + (new_slope==ALL_DOWN_SLOPE && gr_neighbour->get_grund_hang()? 1 : 0);
 					const sint8 diff_from_ground = abs(gr_neighbour_hgt-test_hgt);
 					if(  diff_from_ground > 2 * max_hdiff  ) {
-						return "Maximum tile height difference reached.";
+						// [DCOP] //return "Maximum tile height difference reached.";
 					}
 				}
 			}
