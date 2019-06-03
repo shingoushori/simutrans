@@ -4174,7 +4174,7 @@ DBG_MESSAGE("tool_station_aux()", "building %s on square %d,%d for waytype %x", 
 		}
 		// not straight: sorry cannot build here ...
 		if(  !ribi_t::is_straight(ribi)  ) {
-			return p_error;
+			// [DCOP] //return p_error;
 		}
 		layout = (ribi & ribi_t::northsouth)?0 :1;
 	}
