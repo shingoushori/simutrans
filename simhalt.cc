@@ -264,7 +264,7 @@ koord haltestelle_t::get_next_pos( koord start ) const
 /* Calculate and set basis position of this station
  * It is the avarage of all tiles' coordinate weighed by level of the building */
 void haltestelle_t::recalc_basis_pos()
-{
+{return;// [DCOP]
 	koord cent;
 	sint32 level_sum;
 	cent = koord();
