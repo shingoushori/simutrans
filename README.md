@@ -1,4 +1,8 @@
-# CUCP
+# COCP
+Simutrans 本体改造 カオス運用
+chaotic operation of convois project
+
+derived from ...
 Simutrans 本体改造 増解結
 coupling and uncoupling of convoys project 
 
