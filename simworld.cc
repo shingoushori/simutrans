@@ -6827,6 +6827,26 @@ bool karte_t::interactive(uint32 quit_month)
 			announce_server( 1 );
 		}
 
+		// add message from command line input
+		{
+			int dest = 0;
+			fd_set fds;
+			FD_ZERO( &fds );
+			FD_SET( dest , &fds );
+			struct timeval tv;
+			tv.tv_sec = 0;
+			tv.tv_usec = 0;
+			char read_buf[BUFSIZ+1];
+			if(select( FD_SETSIZE , &fds , NULL , NULL , &tv )){
+				memset(read_buf, '\0', BUFSIZ);
+				read(0,read_buf, BUFSIZ);
+				// tell the player
+				cbuffer_t buf;
+				buf.printf( read_buf );
+				msg->add_message(buf, koord::invalid, message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_EMPTY);
+			}
+		}
+
 		DBG_DEBUG4("karte_t::interactive", "point of loop return");
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
