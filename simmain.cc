@@ -1210,11 +1210,20 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
 		dbg->message("simmain()","Reading midi data ...");
-		if(!midi_init(env_t::user_dir)) {
-			if(!midi_init(env_t::program_dir)) {
-				dbg->message("simmain()","Midi disabled ...");
+		printf("\n env_t::objfilename : %s",env_t::objfilename.c_str());
+		printf("\n env_t::user_dir    : %s",env_t::user_dir);
+		printf("\n env_t::program_dir : %s",env_t::program_dir);
+		char pak_dir[PATH_MAX];
+		sprintf(pak_dir,"%s%s",env_t::program_dir,env_t::objfilename.c_str());
+		printf("\n env_t::pak_dir     : %s",pak_dir);
+		printf("\n");
+		if(!midi_init(pak_dir)){ // [MIDI]
+			if(!midi_init(env_t::user_dir)) {
+				if(!midi_init(env_t::program_dir)) {
+					dbg->message("simmain()","Midi disabled ...");
+				}
 			}
-		}
+		} // [MIDI]
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
 			midi_set_mute(true);
 		}
