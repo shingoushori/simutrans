@@ -17,7 +17,7 @@ class tool_build_house_t;
 class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	static tool_build_house_t haus_tool;
+	static tool_build_house_t* haus_tool;
 	static cbuffer_t param_str;
 
 	const building_desc_t *desc;

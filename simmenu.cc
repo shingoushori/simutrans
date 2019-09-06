@@ -797,6 +797,12 @@ const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
+const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
 
 
 image_id toolbar_t::get_icon(player_t *player) const
@@ -1049,6 +1055,9 @@ bool two_click_tool_t::is_first_click() const
 
 bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
 {
+	if(  one_click && !is_ctrl_pressed()  ) {
+		return false;
+	}
 	if(  !is_first_click()  ) {
 		return false;
 	}
@@ -1094,6 +1103,10 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	}
 
 	if(  is_first_click()  ) {
+		// For co-existence with one_click mode
+		if (one_click) {
+			return do_work( player, pos, koord3d::invalid );
+		}
 		// work directly if possible and ctrl is NOT pressed
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
@@ -1213,3 +1226,9 @@ image_id two_click_tool_t::get_marker_image()
 {
 	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }
+
+ /*const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}*/ 

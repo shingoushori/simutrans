@@ -31,9 +31,9 @@
 
 
 // new tool definition
-tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_chain_t();
-tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
-tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
+tool_build_land_chain_t* factory_edit_frame_t::land_chain_tool = new tool_build_land_chain_t();
+tool_city_chain_t* factory_edit_frame_t::city_chain_tool = new tool_city_chain_t();
+tool_build_factory_t* factory_edit_frame_t::fab_tool = new tool_build_factory_t();
 cbuffer_t factory_edit_frame_t::param_str;
 
 
@@ -53,7 +53,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	extend_edit_gui_t(translator::translate("factorybuilder"), player_),
 	factory_list(16)
 {
-	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
+	land_chain_tool->cursor = city_chain_tool->cursor = fab_tool->cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
 	fac_desc = NULL;
 
 	bt_city_chain.init( button_t::square_state, "Only city chains");
@@ -294,16 +294,16 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		param_str.clear();
 		param_str.printf("%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fac_desc->get_name() );
 		if(bt_land_chain.pressed) {
-			land_chain_tool.set_default_param(param_str);
-			welt->set_tool( &land_chain_tool, player );
+			land_chain_tool->set_default_param(param_str);
+			welt->set_tool( land_chain_tool, player );
 		}
 		else if(bt_city_chain.pressed) {
-			city_chain_tool.set_default_param(param_str);
-			welt->set_tool( &city_chain_tool, player );
+			city_chain_tool->set_default_param(param_str);
+			welt->set_tool( city_chain_tool, player );
 		}
 		else {
-			fab_tool.set_default_param(param_str);
-			welt->set_tool( &fab_tool, player );
+			fab_tool->set_default_param(param_str);
+			welt->set_tool( fab_tool, player );
 		}
 	}
 	else if(fac_desc!=NULL) {

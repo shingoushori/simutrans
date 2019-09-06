@@ -27,7 +27,7 @@
 
 
 // new tool definition
-tool_build_house_t citybuilding_edit_frame_t::haus_tool=tool_build_house_t();
+tool_build_house_t* citybuilding_edit_frame_t::haus_tool=new tool_build_house_t();
 cbuffer_t citybuilding_edit_frame_t::param_str;
 
 
@@ -63,8 +63,8 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(player_t* player_) :
 	building_list(16)
 {
 	desc = NULL;
-	haus_tool.set_default_param(NULL);
-	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
+	haus_tool->set_default_param(NULL);
+	haus_tool->cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 
 	bt_res.init( button_t::square_state, "residential house");
 	bt_res.add_listener(this);
@@ -243,12 +243,12 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		param_str.clear();
 		param_str.printf("%i%c%s", bt_climates.pressed, rotation>253 ? (rotation==254 ? 'A' : '#') : '0'+rotation, desc->get_name() );
-		haus_tool.set_default_param(param_str);
-		welt->set_tool( &haus_tool, player );
+		haus_tool->set_default_param(param_str);
+		welt->set_tool( haus_tool, player );
 	}
 	else {
 		desc = NULL;
-		if(welt->get_tool(player->get_player_nr())==&haus_tool) {
+		if(welt->get_tool(player->get_player_nr())==haus_tool) {
 			welt->set_tool( tool_t::general_tool[TOOL_QUERY], player );
 		}
 		building_image.init(NULL, 0);
