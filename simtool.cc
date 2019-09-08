@@ -800,14 +800,18 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate, koord3d pos )
 {
 	CHECK_FUNDS();
-
+	if (is_ctrl_pressed()) {
+		is_area_process = true;
+		return two_click_tool_t::move(player, buttonstate, pos);
+	}
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
-		if(!is_dragging) {
+		if(!is_dragging && !is_area_process) {
 			drag_height = get_drag_height(pos.get_2d());
 		}
 		is_dragging = true;
+		is_area_process = false;
 		sprintf( buf, "%i", drag_height );
 		default_param = buf;
 		if (env_t::networkmode) {
@@ -864,6 +868,62 @@ bool tool_raise_lower_base_t::check_dragging()
 	return true;
 }
 
+const char *tool_raise_lower_base_t::do_work(player_t *player, const koord3d &start, const koord3d &end)
+{
+	if(  end == koord3d::invalid  ) {
+		if(  !is_ctrl_pressed()  ){
+				is_area_process = false;
+		}
+		return process( player, start );
+	}
+
+	is_area_process = true;
+
+	int dx = (start.x < end.x) ? 1 : -1;
+	int dy = (start.y < end.y) ? 1 : -1;
+	koord k;
+	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
+		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
+			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+				process(player, gr->get_pos() );
+			}
+		}
+	}
+
+	return NULL;
+}
+
+void tool_raise_lower_base_t::mark_tiles(player_t *, const koord3d &start, const koord3d &end)
+{
+	if(  !is_ctrl_pressed()  ){  return;  }
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+	k1.x-=1; k1.y-=1;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			if(  grund_t *gr = welt->lookup_kartenboden( k )  ) {
+
+				zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
+
+				const uint8 grund_hang = gr->get_grund_hang();
+				const uint8 weg_hang = gr->get_weg_hang();
+				const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) + 3 * max( corner_se(grund_hang), corner_se(weg_hang) ) + 9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) + 27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
+				uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+				marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+				marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+
+				marker->mark_image_dirty( marker->get_image(), 0 );
+				gr->obj_add( marker );
+				marked.insert( marker );
+			}
+		}
+	}
+}
+
 
 sint16 tool_raise_t::get_drag_height(koord k)
 {
@@ -891,7 +951,7 @@ const char *tool_raise_t::check_pos(player_t *, koord3d pos )
 }
 
 
-const char *tool_raise_t::work(player_t* player, koord3d pos )
+const char *tool_raise_t::process(player_t* player, koord3d pos)
 {
 	if (!check_dragging()) {
 		return NULL;
@@ -914,7 +974,14 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_raise(player, k, err);
+				if (is_area_process) {
+					if (get_start_pos() != koord3d::invalid) {
+						err = drag(player, k, get_start_pos().z, n);
+					}
+				}
+				else {
+					n = welt->grid_raise(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
@@ -934,7 +1001,7 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 sint16 tool_lower_t::get_drag_height(koord k)
 {
 	const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
-
+	
 	return  gr->get_hoehe(welt->get_corner_to_operate(k)) - 1;
 }
 
@@ -957,7 +1024,7 @@ const char *tool_lower_t::check_pos( player_t *, koord3d pos )
 }
 
 
-const char *tool_lower_t::work( player_t *player, koord3d pos )
+const char *tool_lower_t::process(player_t *player, koord3d pos)
 {
 	if (!check_dragging()) {
 		return NULL;
@@ -978,7 +1045,14 @@ const char *tool_lower_t::work( player_t *player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_lower(player, k, err);
+				if (is_area_process) {
+					if (get_start_pos() != koord3d::invalid) {
+						err = drag(player, k, get_start_pos().z, n);
+					}
+				}
+				else {
+					n = welt->grid_lower(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
@@ -1248,7 +1322,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		const sint16 hgt=new_pos.z;
 		// maximum difference check with tiles to north, south east and west
 		const sint8 test_hgt = hgt+(new_slope!=0);
-
+		
 		if(  gr1->get_typ()==grund_t::boden  ) {
 			for(  sint16 i = 0 ;  i < 4 ;  i++  ) {
 				const koord neighbour = k + koord::nsew[i];
