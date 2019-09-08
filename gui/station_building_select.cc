@@ -27,7 +27,7 @@ static const char label_text[4][64] = {
 };
 
 
-tool_build_station_t station_building_select_t::tool=tool_build_station_t();
+tool_build_station_t* station_building_select_t::tool=new tool_build_station_t();
 
 
 station_building_select_t::station_building_select_t(const building_desc_t *desc) :
@@ -76,8 +76,8 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *comp, va
 			static cbuffer_t default_str;
 			default_str.clear();
 			default_str.printf("%s,%i", desc->get_name(), i );
-			tool.set_default_param(default_str);
-			welt->set_tool( &tool, welt->get_active_player() );
+			tool->set_default_param(default_str);
+			welt->set_tool( tool, welt->get_active_player() );
 			destroy_win(this);
 		}
 	}
